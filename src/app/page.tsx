@@ -32,7 +32,7 @@ export default async function Home() {
                 Driver Standings
               </h2>
               <span className="text-xs text-zinc-600 uppercase tracking-widest">
-                2025 Season
+                2026 Season
               </span>
             </div>
             <StandingsTable type="drivers" standings={driverStandings} />

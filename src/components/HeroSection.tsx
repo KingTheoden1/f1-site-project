@@ -36,7 +36,7 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
           >
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-red-600/10 text-red-400 border border-red-600/20 mb-6">
               <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-              2025 Season
+              2026 Season
             </span>
           </motion.div>
 
