@@ -43,7 +43,7 @@ export default function RootLayout({
               </span>
             </div>
             <p className="text-xs text-zinc-600">
-              Data provided by Ergast API
+              Data provided by Jolpica API
             </p>
           </div>
         </footer>

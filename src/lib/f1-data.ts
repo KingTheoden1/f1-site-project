@@ -35,11 +35,11 @@ export interface RaceResult {
   fastestLap?: boolean;
 }
 
-const ERGAST_BASE = "https://ergast.com/api/f1";
+const API_BASE = "https://api.jolpi.ca/ergast/f1";
 
 export async function getNextRace(): Promise<Race | null> {
   try {
-    const res = await fetch(`${ERGAST_BASE}/current/next.json`, {
+    const res = await fetch(`${API_BASE}/current/next.json`, {
       next: { revalidate: 3600 },
     });
     const data = await res.json();
@@ -62,7 +62,7 @@ export async function getNextRace(): Promise<Race | null> {
 
 export async function getDriverStandings(): Promise<DriverStanding[]> {
   try {
-    const res = await fetch(`${ERGAST_BASE}/current/driverStandings.json`, {
+    const res = await fetch(`${API_BASE}/current/driverStandings.json`, {
       next: { revalidate: 3600 },
     });
     const data = await res.json();
@@ -96,7 +96,7 @@ export async function getConstructorStandings(): Promise<
 > {
   try {
     const res = await fetch(
-      `${ERGAST_BASE}/current/constructorStandings.json`,
+      `${API_BASE}/current/constructorStandings.json`,
       { next: { revalidate: 3600 } }
     );
     const data = await res.json();
@@ -126,7 +126,7 @@ export async function getLastRaceResults(): Promise<{
   results: RaceResult[];
 } | null> {
   try {
-    const res = await fetch(`${ERGAST_BASE}/current/last/results.json`, {
+    const res = await fetch(`${API_BASE}/current/last/results.json`, {
       next: { revalidate: 3600 },
     });
     const data = await res.json();
@@ -168,7 +168,10 @@ export const TEAM_COLORS: Record<string, string> = {
   "Aston Martin": "#229971",
   "Alpine F1 Team": "#FF87BC",
   "Williams": "#64C4FF",
+  "Racing Bulls": "#6692FF",
   "RB F1 Team": "#6692FF",
+  "Audi": "#00A36C",
   "Kick Sauber": "#52E252",
   "Haas F1 Team": "#B6BABD",
+  "Cadillac F1 Team": "#C0C0C0",
 };
