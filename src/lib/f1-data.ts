@@ -160,6 +160,79 @@ export async function getLastRaceResults(): Promise<{
   }
 }
 
+export interface SeasonRace {
+  round: number;
+  raceName: string;
+  country: string;
+  date: string;
+  circuitName: string;
+  status: "completed" | "upcoming" | "cancelled";
+}
+
+const CANCELLED_RACES: SeasonRace[] = [
+  {
+    round: 0,
+    raceName: "Bahrain Grand Prix",
+    country: "Bahrain",
+    date: "2026-04-12",
+    circuitName: "Bahrain International Circuit",
+    status: "cancelled",
+  },
+  {
+    round: 0,
+    raceName: "Saudi Arabian Grand Prix",
+    country: "Saudi Arabia",
+    date: "2026-04-19",
+    circuitName: "Jeddah Corniche Circuit",
+    status: "cancelled",
+  },
+];
+
+export async function getSeasonCalendar(): Promise<SeasonRace[]> {
+  try {
+    const res = await fetch(`${API_BASE}/current.json`, {
+      next: { revalidate: 3600 },
+    });
+    const data = await res.json();
+    const races = data.MRData.RaceTable.Races || [];
+    const today = new Date();
+
+    const apiRaces: SeasonRace[] = races.map(
+      (race: {
+        round: string;
+        raceName: string;
+        Circuit: {
+          circuitId: string;
+          circuitName: string;
+          Location: { country: string };
+        };
+        date: string;
+      }) => {
+        const raceDate = new Date(race.date);
+
+        return {
+          round: parseInt(race.round),
+          raceName: race.raceName,
+          country: race.Circuit.Location.country,
+          date: race.date,
+          circuitName: race.Circuit.circuitName,
+          status: raceDate < today ? "completed" as const : "upcoming" as const,
+        };
+      }
+    );
+
+    // Merge cancelled races with API races, sorted by date
+    const allRaces = [...CANCELLED_RACES, ...apiRaces].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    // Re-assign round numbers sequentially
+    return allRaces.map((race, i) => ({ ...race, round: i + 1 }));
+  } catch {
+    return [];
+  }
+}
+
 export const TEAM_COLORS: Record<string, string> = {
   "Red Bull": "#3671C6",
   "Ferrari": "#E8002D",
