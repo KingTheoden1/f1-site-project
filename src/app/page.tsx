@@ -1,20 +1,23 @@
 import HeroSection from "@/components/HeroSection";
 import StandingsTable from "@/components/StandingsTable";
 import RaceResultCard from "@/components/RaceResultCard";
+import SeasonCalendar from "@/components/SeasonCalendar";
 import {
   getNextRace,
   getDriverStandings,
   getConstructorStandings,
   getLastRaceResults,
+  getSeasonCalendar,
 } from "@/lib/f1-data";
 
 export default async function Home() {
-  const [nextRace, driverStandings, constructorStandings, lastRace] =
+  const [nextRace, driverStandings, constructorStandings, lastRace, seasonCalendar] =
     await Promise.all([
       getNextRace(),
       getDriverStandings(),
       getConstructorStandings(),
       getLastRaceResults(),
+      getSeasonCalendar(),
     ]);
 
   return (
@@ -36,6 +39,11 @@ export default async function Home() {
               </span>
             </div>
             <StandingsTable type="drivers" standings={driverStandings} />
+
+            {/* Season Calendar - fills the empty space below standings */}
+            <div className="mt-8">
+              <SeasonCalendar races={seasonCalendar} />
+            </div>
           </div>
 
           {/* Sidebar - Last Race + Constructor Standings */}
