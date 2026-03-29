@@ -94,6 +94,9 @@ export default function RaceResultCard({
                 </span>
               )}
               <span className="text-xs text-zinc-500">{result.time}</span>
+              <span className="text-xs text-zinc-400 font-medium w-10 text-right">
+                {result.points > 0 ? `${result.points} pts` : ""}
+              </span>
             </div>
           </div>
         ))}

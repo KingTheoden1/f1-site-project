@@ -42,7 +42,7 @@ export default async function Home() {
 
             {/* Season Calendar - fills the empty space below standings */}
             <div className="mt-8">
-              <SeasonCalendar races={seasonCalendar} />
+              <SeasonCalendar races={seasonCalendar} nextRaceName={nextRace?.raceName} />
             </div>
           </div>
 
