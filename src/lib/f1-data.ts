@@ -280,6 +280,156 @@ export async function getSeasonCalendar(): Promise<SeasonRace[]> {
   }
 }
 
+// ============ CIRCUITS ============
+
+import { CIRCUIT_DATA, type CircuitStaticData } from "./circuit-data";
+
+export interface CircuitWithDetails extends CircuitStaticData {
+  circuitName: string;
+  country: string;
+  city: string;
+  lat: string;
+  long: string;
+  round?: number;
+  raceName?: string;
+  raceDate?: string;
+  raceTime?: string;
+  raceCancelled?: boolean;
+}
+
+export interface CircuitWinner {
+  season: number;
+  raceName: string;
+  date: string;
+  driver: string;
+  team: string;
+}
+
+export async function getCircuits(): Promise<CircuitWithDetails[]> {
+  try {
+    const [circuitsRes, scheduleRes] = await Promise.all([
+      fetch(`${API_BASE}/current/circuits.json?limit=30`, {
+        next: { revalidate: 3600 },
+      }),
+      fetch(`${API_BASE}/current.json`, {
+        next: { revalidate: 3600 },
+      }),
+    ]);
+
+    const circuitsData = await circuitsRes.json();
+    const scheduleData = await scheduleRes.json();
+
+    const circuits = circuitsData.MRData.CircuitTable.Circuits || [];
+    const races = scheduleData.MRData.RaceTable.Races || [];
+
+    // Build a schedule lookup by circuitId
+    const scheduleLookup: Record<
+      string,
+      { round: number; raceName: string; date: string; time: string }
+    > = {};
+    for (const race of races) {
+      scheduleLookup[race.Circuit.circuitId] = {
+        round: parseInt(race.round),
+        raceName: race.raceName,
+        date: race.date,
+        time: race.time || "00:00:00Z",
+      };
+    }
+
+    // Cancelled circuit IDs
+    const cancelledIds = new Set(["bahrain", "jeddah"]);
+
+    const result: CircuitWithDetails[] = circuits.map(
+      (c: {
+        circuitId: string;
+        circuitName: string;
+        Location: {
+          country: string;
+          locality: string;
+          lat: string;
+          long: string;
+        };
+      }) => {
+        const staticData = CIRCUIT_DATA[c.circuitId];
+        const schedule = scheduleLookup[c.circuitId];
+
+        return {
+          // Static data (fallback defaults if circuit not in our data file)
+          circuitId: c.circuitId,
+          trackType: staticData?.trackType || "permanent",
+          lengthKm: staticData?.lengthKm || 0,
+          turns: staticData?.turns || 0,
+          drsZones: staticData?.drsZones || 0,
+          laps: staticData?.laps || 0,
+          lapRecord: staticData?.lapRecord,
+          elevationChangeM: staticData?.elevationChangeM,
+          description: staticData?.description || "",
+          history: staticData?.history || "",
+          notableRaces: staticData?.notableRaces || [],
+          // API data
+          circuitName: c.circuitName,
+          country: c.Location.country,
+          city: c.Location.locality,
+          lat: c.Location.lat,
+          long: c.Location.long,
+          round: schedule?.round,
+          raceName: schedule?.raceName,
+          raceDate: schedule?.date,
+          raceTime: schedule?.time,
+          raceCancelled: cancelledIds.has(c.circuitId),
+        };
+      }
+    );
+
+    // Sort by round number (circuits without a round go last)
+    return result.sort((a, b) => (a.round ?? 999) - (b.round ?? 999));
+  } catch {
+    return [];
+  }
+}
+
+export async function getCircuitById(
+  circuitId: string
+): Promise<CircuitWithDetails | null> {
+  const circuits = await getCircuits();
+  return circuits.find((c) => c.circuitId === circuitId) || null;
+}
+
+export async function getCircuitWinners(
+  circuitId: string
+): Promise<CircuitWinner[]> {
+  try {
+    const res = await fetch(
+      `${API_BASE}/circuits/${circuitId}/results/1.json?limit=100`,
+      { next: { revalidate: 3600 } }
+    );
+    const data = await res.json();
+    const races = data.MRData.RaceTable.Races || [];
+
+    return races
+      .map(
+        (race: {
+          season: string;
+          raceName: string;
+          date: string;
+          Results: {
+            Driver: { givenName: string; familyName: string };
+            Constructor: { name: string };
+          }[];
+        }) => ({
+          season: parseInt(race.season),
+          raceName: race.raceName,
+          date: race.date,
+          driver: `${race.Results[0].Driver.givenName} ${race.Results[0].Driver.familyName}`,
+          team: race.Results[0].Constructor.name,
+        })
+      )
+      .reverse();
+  } catch {
+    return [];
+  }
+}
+
 export const TEAM_COLORS: Record<string, string> = {
   "Red Bull": "#3671C6",
   "Ferrari": "#E8002D",
