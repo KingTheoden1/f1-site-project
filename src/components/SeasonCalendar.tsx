@@ -5,9 +5,10 @@ import type { SeasonRace } from "@/lib/f1-data";
 
 interface SeasonCalendarProps {
   races: SeasonRace[];
+  nextRaceName?: string;
 }
 
-export default function SeasonCalendar({ races }: SeasonCalendarProps) {
+export default function SeasonCalendar({ races, nextRaceName }: SeasonCalendarProps) {
   const completedCount = races.filter((r) => r.status === "completed").length;
   const cancelledCount = races.filter((r) => r.status === "cancelled").length;
   const totalActive = races.length - cancelledCount;
@@ -39,12 +40,11 @@ export default function SeasonCalendar({ races }: SeasonCalendarProps) {
           const day = date.getDate();
           const isCancelled = race.status === "cancelled";
           const isCompleted = race.status === "completed";
-          const isNext =
-            !isCancelled &&
-            !isCompleted &&
-            races.findIndex(
-              (r) => r.status === "upcoming"
-            ) === i;
+          const isNext = nextRaceName
+            ? race.raceName === nextRaceName
+            : !isCancelled &&
+              !isCompleted &&
+              races.findIndex((r) => r.status === "upcoming") === i;
 
           // Convert race time to Central timezone (hide if midnight/unknown)
           const raceDateTime = new Date(`${race.date}T${race.time}`);

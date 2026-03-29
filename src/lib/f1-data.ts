@@ -236,36 +236,33 @@ export async function getSeasonCalendar(): Promise<SeasonRace[]> {
       }
     );
 
-    // Fetch results for completed races to get winners
-    const completedRounds = apiRaces
-      .filter((r) => r.status === "completed")
-      .map((r) => r.round);
-
+    // Fetch race winners — also used to determine completed status
     const winners: Record<number, string> = {};
-    if (completedRounds.length > 0) {
-      try {
-        const resultsRes = await fetch(
-          `${API_BASE}/current/results/1.json`,
-          { next: { revalidate: 3600 } }
-        );
-        const resultsData = await resultsRes.json();
-        const resultRaces = resultsData.MRData.RaceTable.Races || [];
-        for (const race of resultRaces) {
-          const round = parseInt(race.round);
-          const winner = race.Results?.[0];
-          if (winner) {
-            winners[round] = `${winner.Driver.givenName} ${winner.Driver.familyName}`;
-          }
+    try {
+      const resultsRes = await fetch(
+        `${API_BASE}/current/results/1.json`,
+        { next: { revalidate: 3600 } }
+      );
+      const resultsData = await resultsRes.json();
+      const resultRaces = resultsData.MRData.RaceTable.Races || [];
+      for (const race of resultRaces) {
+        const round = parseInt(race.round);
+        const winner = race.Results?.[0];
+        if (winner) {
+          winners[round] = `${winner.Driver.givenName} ${winner.Driver.familyName}`;
         }
-      } catch {
-        // Winners just won't show if this fails
       }
+    } catch {
+      // Winners just won't show if this fails
     }
 
-    // Attach winners to completed races
+    // Attach winners and mark races with results as completed
     const apiRacesWithWinners = apiRaces.map((race) => ({
       ...race,
       winner: winners[race.round],
+      status: winners[race.round]
+        ? "completed" as const
+        : race.status,
     }));
 
     // Merge cancelled races with API races, sorted by date
