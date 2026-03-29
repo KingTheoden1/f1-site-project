@@ -3,6 +3,7 @@ export interface Race {
   raceName: string;
   circuitName: string;
   country: string;
+  city: string;
   date: string;
   time: string;
   circuitId: string;
@@ -51,6 +52,7 @@ export async function getNextRace(): Promise<Race | null> {
       raceName: race.raceName,
       circuitName: race.Circuit.circuitName,
       country: race.Circuit.Location.country,
+      city: race.Circuit.Location.locality,
       date: race.date,
       time: race.time || "14:00:00Z",
       circuitId: race.Circuit.circuitId,
@@ -164,9 +166,12 @@ export interface SeasonRace {
   round: number;
   raceName: string;
   country: string;
+  city: string;
   date: string;
+  time: string;
   circuitName: string;
   status: "completed" | "upcoming" | "cancelled";
+  winner?: string;
 }
 
 const CANCELLED_RACES: SeasonRace[] = [
@@ -174,7 +179,9 @@ const CANCELLED_RACES: SeasonRace[] = [
     round: 0,
     raceName: "Bahrain Grand Prix",
     country: "Bahrain",
+    city: "Sakhir",
     date: "2026-04-12",
+    time: "00:00:00Z",
     circuitName: "Bahrain International Circuit",
     status: "cancelled",
   },
@@ -182,7 +189,9 @@ const CANCELLED_RACES: SeasonRace[] = [
     round: 0,
     raceName: "Saudi Arabian Grand Prix",
     country: "Saudi Arabia",
+    city: "Jeddah",
     date: "2026-04-19",
+    time: "00:00:00Z",
     circuitName: "Jeddah Corniche Circuit",
     status: "cancelled",
   },
@@ -204,25 +213,63 @@ export async function getSeasonCalendar(): Promise<SeasonRace[]> {
         Circuit: {
           circuitId: string;
           circuitName: string;
-          Location: { country: string };
+          Location: { country: string; locality: string };
         };
         date: string;
+        time?: string;
       }) => {
         const raceDate = new Date(race.date);
+        // Mark as completed only the day after the race
+        const dayAfterRace = new Date(raceDate);
+        dayAfterRace.setDate(dayAfterRace.getDate() + 1);
 
         return {
           round: parseInt(race.round),
           raceName: race.raceName,
           country: race.Circuit.Location.country,
+          city: race.Circuit.Location.locality,
           date: race.date,
+          time: race.time || "00:00:00Z",
           circuitName: race.Circuit.circuitName,
-          status: raceDate < today ? "completed" as const : "upcoming" as const,
+          status: today >= dayAfterRace ? "completed" as const : "upcoming" as const,
         };
       }
     );
 
+    // Fetch results for completed races to get winners
+    const completedRounds = apiRaces
+      .filter((r) => r.status === "completed")
+      .map((r) => r.round);
+
+    const winners: Record<number, string> = {};
+    if (completedRounds.length > 0) {
+      try {
+        const resultsRes = await fetch(
+          `${API_BASE}/current/results/1.json`,
+          { next: { revalidate: 3600 } }
+        );
+        const resultsData = await resultsRes.json();
+        const resultRaces = resultsData.MRData.RaceTable.Races || [];
+        for (const race of resultRaces) {
+          const round = parseInt(race.round);
+          const winner = race.Results?.[0];
+          if (winner) {
+            winners[round] = `${winner.Driver.givenName} ${winner.Driver.familyName}`;
+          }
+        }
+      } catch {
+        // Winners just won't show if this fails
+      }
+    }
+
+    // Attach winners to completed races
+    const apiRacesWithWinners = apiRaces.map((race) => ({
+      ...race,
+      winner: winners[race.round],
+    }));
+
     // Merge cancelled races with API races, sorted by date
-    const allRaces = [...CANCELLED_RACES, ...apiRaces].sort(
+    const allRaces = [...CANCELLED_RACES, ...apiRacesWithWinners].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 

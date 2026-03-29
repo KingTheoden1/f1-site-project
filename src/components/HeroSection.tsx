@@ -79,7 +79,7 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
                   {nextRace.raceName}
                 </h2>
                 <p className="text-sm text-zinc-500 mt-1">
-                  {nextRace.circuitName} — {nextRace.country}
+                  {nextRace.circuitName} — {nextRace.city}, {nextRace.country}
                 </p>
               </div>
 
@@ -87,6 +87,27 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
                 targetDate={nextRace.date}
                 targetTime={nextRace.time}
               />
+
+              <a
+                href="https://tv.apple.com/us/channel/formula-1/tvs.sbd.241000"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Watch Live
+              </a>
             </motion.div>
           )}
         </div>

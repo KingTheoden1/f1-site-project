@@ -46,6 +46,17 @@ export default function SeasonCalendar({ races }: SeasonCalendarProps) {
               (r) => r.status === "upcoming"
             ) === i;
 
+          // Convert race time to Central timezone (hide if midnight/unknown)
+          const raceDateTime = new Date(`${race.date}T${race.time}`);
+          const isTimeKnown = race.time !== "00:00:00Z";
+          const centralTime = isTimeKnown
+            ? raceDateTime.toLocaleTimeString("en-US", {
+                timeZone: "America/Chicago",
+                hour: "numeric",
+                minute: "2-digit",
+              })
+            : null;
+
           return (
             <motion.div
               key={race.round}
@@ -90,8 +101,13 @@ export default function SeasonCalendar({ races }: SeasonCalendarProps) {
                   {race.raceName}
                 </p>
                 <p className="text-[11px] text-zinc-600 truncate">
-                  {race.country}
+                  {race.circuitName} — {race.city}, {race.country}
                 </p>
+                {isCompleted && race.winner && (
+                  <p className="text-[10px] text-green-400/80 truncate">
+                    🏆 {race.winner}
+                  </p>
+                )}
               </div>
 
               {/* Date or status */}
@@ -104,6 +120,9 @@ export default function SeasonCalendar({ races }: SeasonCalendarProps) {
                   <>
                     <p className="text-xs text-zinc-400">{month}</p>
                     <p className="text-sm font-semibold text-zinc-300">{day}</p>
+                    {centralTime && (
+                      <p className="text-[10px] text-zinc-500">{centralTime} CT</p>
+                    )}
                   </>
                 )}
               </div>
