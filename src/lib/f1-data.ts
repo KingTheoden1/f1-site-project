@@ -427,6 +427,114 @@ export async function getCircuitWinners(
   }
 }
 
+// ============ TEAMS ============
+
+import { TEAM_DATA, type TeamStaticData } from "./team-data";
+
+export interface TeamDriver {
+  name: string;
+  code: string;
+  number: string;
+  nationality: string;
+  points: number;
+  wins: number;
+  position: number;
+}
+
+export interface TeamWithDetails extends TeamStaticData {
+  name: string;
+  nationality: string;
+  position: number;
+  points: number;
+  wins: number;
+  drivers: TeamDriver[];
+  wikiUrl: string;
+}
+
+export async function getTeamsWithDrivers(): Promise<TeamWithDetails[]> {
+  try {
+    const [standingsRes, driverStandingsRes] = await Promise.all([
+      fetch(`${API_BASE}/current/constructorStandings.json`, {
+        next: { revalidate: 3600 },
+      }),
+      fetch(`${API_BASE}/current/driverStandings.json`, {
+        next: { revalidate: 3600 },
+      }),
+    ]);
+
+    const standingsData = await standingsRes.json();
+    const driverData = await driverStandingsRes.json();
+
+    const constructorStandings =
+      standingsData.MRData.StandingsTable.StandingsLists[0]
+        ?.ConstructorStandings || [];
+    const driverStandings =
+      driverData.MRData.StandingsTable.StandingsLists[0]?.DriverStandings || [];
+
+    // Group drivers by constructor
+    const driversByTeam: Record<string, TeamDriver[]> = {};
+    for (const ds of driverStandings) {
+      const constructorId = ds.Constructors[0]?.constructorId;
+      if (!constructorId) continue;
+
+      if (!driversByTeam[constructorId]) {
+        driversByTeam[constructorId] = [];
+      }
+
+      driversByTeam[constructorId].push({
+        name: `${ds.Driver.givenName} ${ds.Driver.familyName}`,
+        code: ds.Driver.code || ds.Driver.familyName.substring(0, 3).toUpperCase(),
+        number: ds.Driver.permanentNumber || "0",
+        nationality: ds.Driver.nationality || "",
+        points: parseFloat(ds.points),
+        wins: parseInt(ds.wins),
+        position: parseInt(ds.position),
+      });
+    }
+
+    return constructorStandings.map(
+      (cs: {
+        position: string;
+        points: string;
+        wins: string;
+        Constructor: {
+          constructorId: string;
+          name: string;
+          nationality: string;
+          url: string;
+        };
+      }) => {
+        const id = cs.Constructor.constructorId;
+        const staticData = TEAM_DATA[id];
+
+        return {
+          // Static data (fallback defaults)
+          constructorId: id,
+          fullName: staticData?.fullName || cs.Constructor.name,
+          base: staticData?.base || "Unknown",
+          teamPrincipal: staticData?.teamPrincipal || "Unknown",
+          powerUnit: staticData?.powerUnit || "Unknown",
+          firstEntry: staticData?.firstEntry || 0,
+          worldChampionships: staticData?.worldChampionships || 0,
+          highestFinish: staticData?.highestFinish || "N/A",
+          description: staticData?.description || "",
+          history: staticData?.history || "",
+          // API data
+          name: cs.Constructor.name,
+          nationality: cs.Constructor.nationality,
+          position: parseInt(cs.position),
+          points: parseFloat(cs.points),
+          wins: parseInt(cs.wins),
+          drivers: driversByTeam[id] || [],
+          wikiUrl: cs.Constructor.url,
+        };
+      }
+    );
+  } catch {
+    return [];
+  }
+}
+
 export const TEAM_COLORS: Record<string, string> = {
   "Red Bull": "#3671C6",
   "Ferrari": "#E8002D",
