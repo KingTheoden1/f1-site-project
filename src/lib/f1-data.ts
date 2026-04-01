@@ -448,7 +448,7 @@ export interface TeamWithDetails extends TeamStaticData {
   points: number;
   wins: number;
   drivers: TeamDriver[];
-  wikiUrl: string;
+  websiteUrl: string;
 }
 
 export async function getTeamsWithDrivers(): Promise<TeamWithDetails[]> {
@@ -526,7 +526,7 @@ export async function getTeamsWithDrivers(): Promise<TeamWithDetails[]> {
           points: parseFloat(cs.points),
           wins: parseInt(cs.wins),
           drivers: driversByTeam[id] || [],
-          wikiUrl: cs.Constructor.url,
+          websiteUrl: staticData?.websiteUrl || cs.Constructor.url,
         };
       }
     );
