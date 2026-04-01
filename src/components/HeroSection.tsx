@@ -10,7 +10,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ nextRace }: HeroSectionProps) {
   return (
-    <section className="relative overflow-hidden bg-zinc-950 border-b border-zinc-800">
+    <section className="relative overflow-x-hidden bg-zinc-950 border-b border-zinc-800">
       {/* Animated background grid */}
       <div className="absolute inset-0 opacity-[0.03]">
         <div
@@ -45,10 +45,10 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-4"
+            className="text-4xl sm:text-6xl lg:text-7xl font-bold italic text-white tracking-tight leading-tight mb-4 overflow-visible font-[family-name:var(--font-orbitron)]"
           >
             F1{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-600">
+            <span className="text-red-500">
               PULSE
             </span>
           </motion.h1>

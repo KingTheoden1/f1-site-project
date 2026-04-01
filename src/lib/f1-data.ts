@@ -535,6 +535,75 @@ export async function getTeamsWithDrivers(): Promise<TeamWithDetails[]> {
   }
 }
 
+// ============ DRIVERS ============
+
+export interface DriverWithDetails {
+  position: number;
+  points: number;
+  wins: number;
+  driverId: string;
+  name: string;
+  givenName: string;
+  familyName: string;
+  code: string;
+  number: string;
+  dateOfBirth: string;
+  nationality: string;
+  team: string;
+  constructorId: string;
+  wikiUrl: string;
+}
+
+export async function getDriversWithDetails(): Promise<DriverWithDetails[]> {
+  try {
+    const res = await fetch(`${API_BASE}/current/driverStandings.json`, {
+      next: { revalidate: 3600 },
+    });
+    const data = await res.json();
+    const standings =
+      data.MRData.StandingsTable.StandingsLists[0]?.DriverStandings || [];
+
+    return standings.map(
+      (s: {
+        position: string;
+        points: string;
+        wins: string;
+        Driver: {
+          driverId: string;
+          givenName: string;
+          familyName: string;
+          code?: string;
+          permanentNumber?: string;
+          dateOfBirth?: string;
+          nationality?: string;
+          url?: string;
+        };
+        Constructors: {
+          constructorId: string;
+          name: string;
+        }[];
+      }) => ({
+        position: parseInt(s.position),
+        points: parseFloat(s.points),
+        wins: parseInt(s.wins),
+        driverId: s.Driver.driverId,
+        name: `${s.Driver.givenName} ${s.Driver.familyName}`,
+        givenName: s.Driver.givenName,
+        familyName: s.Driver.familyName,
+        code: s.Driver.code || s.Driver.familyName.substring(0, 3).toUpperCase(),
+        number: s.Driver.permanentNumber || "0",
+        dateOfBirth: s.Driver.dateOfBirth || "",
+        nationality: s.Driver.nationality || "",
+        team: s.Constructors[0]?.name || "Unknown",
+        constructorId: s.Constructors[0]?.constructorId || "",
+        wikiUrl: s.Driver.url || "",
+      })
+    );
+  } catch {
+    return [];
+  }
+}
+
 export const TEAM_COLORS: Record<string, string> = {
   "Red Bull": "#3671C6",
   "Ferrari": "#E8002D",
