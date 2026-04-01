@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import F1Logo from "./F1Logo";
 
 const navLinks = [
   { href: "/", label: "Race Hub" },
@@ -22,7 +22,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <F1Logo size={32} />
+            <Image src="/f1-logo.png" alt="F1 Logo" width={32} height={32} />
             <span className="text-white font-bold italic text-xl tracking-tight leading-relaxed font-[family-name:var(--font-orbitron)]">
               PULSE
             </span>
