@@ -285,16 +285,16 @@ export default function TeamGrid({ teams }: TeamGridProps) {
                     </div>
                   )}
 
-                  {/* Wikipedia link */}
+                  {/* Official team site link */}
                   <a
-                    href={team.wikiUrl}
+                    href={team.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-sm font-medium hover:underline mt-2"
                     style={{ color }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    Learn more on Wikipedia →
+                    Visit official site →
                   </a>
                 </motion.div>
               )}
