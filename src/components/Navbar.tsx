@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import F1Logo from "./F1Logo";
 
 const navLinks = [
   { href: "/", label: "Race Hub" },
@@ -21,10 +22,8 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-red-600 rounded-sm flex items-center justify-center">
-              <span className="text-white font-bold text-sm">F1</span>
-            </div>
-            <span className="text-white font-bold text-xl tracking-tight">
+            <F1Logo size={32} />
+            <span className="text-white font-bold italic text-xl tracking-tight leading-relaxed font-[family-name:var(--font-orbitron)]">
               PULSE
             </span>
           </Link>

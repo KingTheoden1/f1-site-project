@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Titillium_Web, Orbitron } from "next/font/google";
 import Navbar from "@/components/Navbar";
+import F1Logo from "@/components/F1Logo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -11,6 +12,18 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const titillium = Titillium_Web({
+  variable: "--font-titillium",
+  subsets: ["latin"],
+  weight: ["700", "900"],
+});
+
+const orbitron = Orbitron({
+  variable: "--font-orbitron",
+  subsets: ["latin"],
+  weight: ["700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${titillium.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-50">
         <Navbar />
@@ -35,15 +48,21 @@ export default function RootLayout({
         <footer className="border-t border-zinc-800 py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-red-600 rounded-sm flex items-center justify-center">
-                <span className="text-white font-bold text-[10px]">F1</span>
-              </div>
+              <F1Logo size={24} />
               <span className="text-sm text-zinc-500">
                 F1 Pulse — Not affiliated with Formula 1
               </span>
             </div>
             <p className="text-xs text-zinc-600">
-              Data provided by Jolpica API
+              Data provided by{" "}
+              <a
+                href="https://github.com/jolpica/jolpica-f1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-500 hover:text-zinc-300 underline underline-offset-2 transition-colors"
+              >
+                Jolpica API
+              </a>
             </p>
           </div>
         </footer>
