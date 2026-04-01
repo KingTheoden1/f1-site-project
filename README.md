@@ -1,6 +1,6 @@
 # F1 Pulse
 
-An interactive Formula 1 companion platform built with modern web technologies. F1 Pulse delivers live championship data, race countdowns, and visual analytics — designed to be a site fans *use*, not just read.
+An interactive Formula 1 companion platform built with modern web technologies. F1 Pulse delivers live championship data, race countdowns, circuit guides, driver profiles, and team information — designed to be a site fans *use*, not just read.
 
 Live data is sourced from the [Jolpica F1 API](https://api.jolpi.ca/ergast/f1), the successor to the deprecated Ergast API.
 
@@ -8,138 +8,132 @@ Live data is sourced from the [Jolpica F1 API](https://api.jolpi.ca/ergast/f1), 
 
 | Technology | Purpose |
 |---|---|
-| **Next.js 16** | React framework with App Router, server-side rendering, and API route support |
+| **Next.js 16** | React framework with App Router, server-side rendering, and ISR |
 | **React 19** | Component-based UI architecture |
 | **TypeScript** | Type safety across all components and data layers |
 | **Tailwind CSS 4** | Utility-first styling with responsive design |
 | **Framer Motion** | Entrance animations, staggered transitions, and interactive motion |
-| **D3.js** | Data visualization (used in upcoming pages) |
+| **flag-icons** | CSS-based country flag icons for driver nationalities |
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx          # Root layout with Navbar, footer, and global config
-│   ├── page.tsx            # Homepage (Race Hub) — server component
-│   └── globals.css         # Global styles and Tailwind directives
+│   ├── layout.tsx              # Root layout with Navbar, footer, fonts, and global config
+│   ├── page.tsx                # Homepage (Race Hub) — server component
+│   ├── drivers/
+│   │   ├── page.tsx            # Drivers page — server component
+│   │   └── loading.tsx         # Skeleton loading UI
+│   ├── teams/
+│   │   ├── page.tsx            # Teams page — server component
+│   │   └── loading.tsx         # Skeleton loading UI
+│   ├── circuits/
+│   │   ├── page.tsx            # Circuit list — server component
+│   │   ├── loading.tsx         # Skeleton loading UI
+│   │   └── [id]/
+│   │       └── page.tsx        # Individual circuit detail page
+│   ├── icon.png                # Tab favicon (official F1 logo)
+│   └── globals.css             # Global styles and Tailwind directives
 ├── components/
-│   ├── Navbar.tsx           # Sticky navigation with mobile hamburger menu
-│   ├── HeroSection.tsx      # Animated hero with countdown to next race
-│   ├── CountdownTimer.tsx   # Real-time countdown clock (client component)
-│   ├── StandingsTable.tsx   # Reusable standings table for drivers/constructors
-│   ├── RaceResultCard.tsx   # Podium visualization for latest race results
-│   └── SeasonCalendar.tsx   # Full season schedule with progress tracking
+│   ├── Navbar.tsx              # Sticky navigation with mobile hamburger menu
+│   ├── HeroSection.tsx         # Animated hero with countdown to next race
+│   ├── CountdownTimer.tsx      # Real-time countdown clock (client component)
+│   ├── StandingsTable.tsx      # Reusable standings table for drivers/constructors
+│   ├── RaceResultCard.tsx      # Podium visualization for latest race results
+│   ├── SeasonCalendar.tsx      # Full season schedule with progress tracking
+│   ├── DriverGrid.tsx          # Driver cards grid with headshots and flags
+│   ├── TeamGrid.tsx            # Expandable team panels with driver lineups
+│   ├── CircuitList.tsx         # Circuit cards with track details
+│   └── F1Logo.tsx              # Official F1 logo SVG component
 └── lib/
-    └── f1-data.ts           # API layer, TypeScript interfaces, and team color map
+    ├── f1-data.ts              # API layer, TypeScript interfaces, and team color map
+    ├── driver-data.ts          # Static driver headshot URLs (F1 media CDN)
+    ├── team-data.ts            # Static team info: history, base, TP, website URLs
+    └── circuit-data.ts         # Static circuit info: length, turns, DRS zones, history
 ```
 
 ## Pages
 
-### Homepage — "Race Hub" (Completed)
+### Homepage — "Race Hub" ✅
 
-The Race Hub serves as the central dashboard for the 2026 F1 season. It is a **server component** that fetches all data at request time using Next.js server-side rendering, meaning the page arrives fully populated — no loading spinners or client-side fetching.
+The Race Hub is the central dashboard for the 2026 F1 season. A **server component** that fetches all data at request time — the page arrives fully populated with no client-side loading spinners.
 
-#### How It Works
+Fetches five data sources in parallel via `Promise.all`: next race, driver standings, constructor standings, last race results, and season calendar. Each is cached with a 1-hour revalidation window (`next: { revalidate: 3600 }`).
 
-**Data Fetching (Server-Side)**
+**Components:** Hero with countdown, driver/constructor standings tables, latest race podium, full season calendar with cancelled race handling.
 
-The homepage (`src/app/page.tsx`) is an `async` server component. On each request, it calls five data functions in parallel using `Promise.all`:
+---
 
-```typescript
-const [nextRace, driverStandings, constructorStandings, lastRace, seasonCalendar] =
-  await Promise.all([
-    getNextRace(),
-    getDriverStandings(),
-    getConstructorStandings(),
-    getLastRaceResults(),
-    getSeasonCalendar(),
-  ]);
-```
+### Circuits — "Track Atlas" ✅
 
-Each function fetches from the Jolpica F1 API and is cached with a 1-hour revalidation window (`next: { revalidate: 3600 }`), meaning the data stays fresh without hammering the API on every page load.
+A full guide to every circuit on the 2026 calendar. The list view shows track type, length, turns, and DRS zones. Clicking a circuit opens a detail page with lap record, elevation change, a written history, notable races, and past winners at that venue.
 
-All API responses are transformed from the raw JSON structure into clean TypeScript interfaces (`Race`, `DriverStanding`, `ConstructorStanding`, `RaceResult`, `SeasonRace`) defined in `src/lib/f1-data.ts`. This gives type safety throughout the component tree and makes the data predictable to work with.
+Circuit detail pages use `generateStaticParams` to pre-render all 24 circuits at build time, with 1-hour ISR revalidation for winner data.
 
-**Layout Architecture**
+**Components:** `CircuitList.tsx` — card grid with track metadata. Dynamic `[id]` pages pull winner history from the API.
 
-The main content uses a responsive CSS Grid layout:
-- **Desktop (lg+):** 3-column grid — Driver Standings and Season Calendar span the left 2 columns, Latest Race Result and Constructor Standings sit in a sidebar on the right
-- **Mobile:** Single column, all sections stacked vertically
+---
 
-This is handled with Tailwind's `grid-cols-1 lg:grid-cols-3` and `lg:col-span-2` utilities.
+### Drivers ✅
 
-#### Component Breakdown
+A grid of all 22 current-season drivers sorted by championship standing. Each card shows:
+- Official driver headshot from the F1 media CDN
+- Team color accent bar
+- Current season wins and points
+- Championship position
+- Nationality flag (via `flag-icons` CSS library) and age
 
-**Navbar** (`src/components/Navbar.tsx`)
-- Sticky positioning with backdrop blur effect (`bg-zinc-950/90 backdrop-blur-md`)
-- Desktop navigation links rendered from a `navLinks` array for easy maintenance
-- Mobile: hamburger menu toggle with animated expand/collapse using Framer Motion's `AnimatePresence`
-- Links: Race Hub, Circuits, Drivers, Teams, Strategy Room
+**Components:** `DriverGrid.tsx` — client component with Framer Motion staggered entrance animations. Driver headshots are served via Next.js `Image` with the `media.formula1.com` remote pattern configured.
 
-**Hero Section** (`src/components/HeroSection.tsx`)
-- Client component (requires Framer Motion)
-- Animated background: subtle CSS grid pattern at 3% opacity creates a technical aesthetic
-- Red accent glow: a blurred `div` positioned behind the content for depth
-- Staggered entrance animations on the season badge, title, tagline, and countdown — each delayed by 100ms
-- Title uses a red gradient (`bg-gradient-to-r from-red-500 to-red-600`) with `bg-clip-text` to make the "PULSE" text appear as a gradient
-- Displays the next race name, circuit, country, and round number pulled from the API
+---
 
-**Countdown Timer** (`src/components/CountdownTimer.tsx`)
-- Client component using `useState` and `useEffect` for real-time updates
-- Calculates the difference between now and the target race datetime, then breaks it into days, hours, minutes, and seconds
-- Updates every second via `setInterval`, cleaned up on unmount with the `useEffect` return function
-- Each time block animates on value change using Framer Motion's `key` prop — when the number changes, the old one exits and the new one slides in
-- Initializes as `null` to avoid hydration mismatches between server and client (server doesn't know the current time)
+### Teams ✅
 
-**Standings Table** (`src/components/StandingsTable.tsx`)
-- Accepts a `type` prop of either `"drivers"` or `"constructors"`, which controls column visibility and data mapping
-- Uses TypeScript discriminated unions (`DriverStandingsProps | ConstructorStandingsProps`) for type-safe prop handling
-- Each row has a colored position indicator bar using the team's official color from the `TEAM_COLORS` map
-- Rows animate in with a staggered delay (`delay: i * 0.05`) using Framer Motion
-- Shows top 10 entries only
-- Responsive: the Team column is hidden on mobile for driver standings (`hidden sm:table-cell`)
+Expandable panels for all 11 constructors, sorted by championship standing. The collapsed view shows position, points, drivers, wins, titles, power unit, and founding year. Expanding a panel reveals:
+- Full team details (principal, base, nationality)
+- Driver lineup with current standings
+- About and history text
+- Link to the team's official website
 
-**Race Result Card** (`src/components/RaceResultCard.tsx`)
-- Visualizes the latest race result with a podium graphic and full top-10 list
-- The podium uses three `PodiumCard` sub-components arranged in P2-P1-P3 order (1st in the center, tallest) using CSS `order`
-- Each podium block has a gradient background using the driver's team color at low opacity, with a solid top border
-- The remaining P4–P10 results are listed below with compact rows showing position, team color indicator, driver name, finishing time/status, and a fastest lap badge (purple "FL" indicator) when applicable
-- Entrance animations are staggered based on podium position order
+**Components:** `TeamGrid.tsx` — client component with accordion-style expand/collapse via Framer Motion.
 
-**Season Calendar** (`src/components/SeasonCalendar.tsx`)
-- Displays the complete 2026 season schedule (24 races including 2 cancelled)
-- Animated progress bar shows season completion percentage (only counts active races)
-- Each race row shows: round number, status dot, race name, country, and date
-- Status dot colors: green (completed), red with pulse animation (next race), gray (upcoming), dimmed gray (cancelled)
-- Cancelled races (Bahrain GP, Saudi Arabian GP) display with strikethrough text, reduced opacity, and a red "CANCELLED" label
-- Scrollable container with `max-h-[400px]` to keep the layout balanced
-- Cancelled races are hardcoded and merged with API data chronologically, then round numbers are reassigned sequentially
+---
 
-#### Data Layer
+## Data Layer
 
 **API Functions** (`src/lib/f1-data.ts`)
 
 | Function | Endpoint | Returns |
 |---|---|---|
-| `getNextRace()` | `/current/next.json` | Next scheduled race (name, circuit, date, time) |
-| `getDriverStandings()` | `/current/driverStandings.json` | Current driver championship standings |
-| `getConstructorStandings()` | `/current/constructorStandings.json` | Current constructor championship standings |
-| `getLastRaceResults()` | `/current/last/results.json` | Most recent race results (top 10) with fastest lap |
-| `getSeasonCalendar()` | `/current.json` | Full season schedule merged with cancelled race data |
+| `getNextRace()` | `/current/next.json` | Next scheduled race |
+| `getDriverStandings()` | `/current/driverStandings.json` | Driver championship standings |
+| `getConstructorStandings()` | `/current/constructorStandings.json` | Constructor standings |
+| `getLastRaceResults()` | `/current/last/results.json` | Latest race top 10 + fastest lap |
+| `getSeasonCalendar()` | `/current.json` + `/current/results/1.json` | Full schedule with winners |
+| `getDriversWithDetails()` | `/current/driverStandings.json` | Full driver profiles for the grid |
+| `getTeamsWithDrivers()` | `/current/constructorStandings.json` + `/current/driverStandings.json` | Constructor standings with driver lineups |
+| `getCircuits()` | `/current/circuits.json` + `/current.json` | All circuits with schedule data |
+| `getCircuitById()` | — | Single circuit detail (from cached list) |
+| `getCircuitWinners()` | `/circuits/{id}/results/1.json` | All-time race winners at a circuit |
 
-**Team Colors Map**
+**Static Data Files**
 
-A `TEAM_COLORS` constant maps every 2026 team name to their official hex color code. This is used across multiple components (standings tables, race results, podium cards) to maintain visual consistency with actual F1 branding. Includes all 10 teams plus alternate names (e.g., both "Racing Bulls" and "RB F1 Team" map to `#6692FF`).
+- `driver-data.ts` — maps driver IDs to their official F1 media CDN headshot URLs
+- `team-data.ts` — stores team history, base location, team principal, power unit, and official website URL for all 11 constructors
+- `circuit-data.ts` — stores circuit length, turns, DRS zones, laps, lap records, elevation change, and written history for all 24 circuits
+
+**Team Colors**
+
+`TEAM_COLORS` maps every 2026 constructor name to their official hex color, used consistently across standings tables, race results, driver cards, and team panels.
 
 ## Design Decisions
 
-- **Dark theme throughout** — matches the premium feel of F1's own branding and is easier on the eyes for a data-heavy dashboard
-- **Server-side data fetching** — the page loads fully rendered, which is faster for the user and better for SEO compared to client-side fetching
-- **Parallel API calls** — all five data sources are fetched simultaneously with `Promise.all`, reducing total load time versus sequential requests
-- **Component reuse** — `StandingsTable` handles both driver and constructor standings through a discriminated union type pattern, avoiding code duplication
-- **Framer Motion stagger pattern** — entrance animations are offset by index (`delay: i * 0.05`), giving the page a polished, sequential reveal without requiring complex orchestration
-- **Responsive-first design** — every component adapts from mobile to desktop using Tailwind breakpoint utilities, not separate mobile/desktop components
+- **Dark theme throughout** — matches the premium feel of F1's own branding and suits a data-heavy dashboard
+- **Server-side rendering + ISR** — pages load fully rendered with 1-hour cache revalidation, fast for users and good for SEO
+- **Parallel API calls** — all data sources fetched simultaneously with `Promise.all` to minimize load time
+- **Static + dynamic split** — time-sensitive data (standings, results) comes from the API; stable data (circuit history, team info, driver headshots) lives in static TypeScript files to avoid unnecessary API calls
+- **Framer Motion stagger pattern** — entrance animations offset by index give pages a polished sequential reveal without complex orchestration
 
 ## Getting Started
 
@@ -155,7 +149,5 @@ Open [http://localhost:3000](http://localhost:3000) to view the site.
 
 ## Upcoming Pages
 
-- **Circuits — "Track Atlas"** — Interactive circuit maps with historical stats and side-by-side comparisons
-- **Drivers & Teams — "Performance Lab"** — Career profiles, performance charts, and head-to-head driver comparisons
-- **Race Dashboard — "Strategy Room"** — Lap-by-lap race replays with pit stop timelines and tire strategy visualization
-- **Predictor — "Grid Picks"** — Pre-race prediction game with season-long accuracy tracking
+- **Strategy Room** — Lap-by-lap race replays with pit stop timelines and tire strategy visualization
+- **Grid Picks** — Pre-race prediction game with season-long accuracy tracking
