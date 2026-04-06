@@ -45,6 +45,9 @@ export interface RaceSession {
 }
 
 export interface RaceWeekend extends Race {
+  lat: string;
+  lon: string;
+  isSprint: boolean;
   sessions: RaceSession[];
 }
 
@@ -77,6 +80,8 @@ export async function getNextRaceWeekend(): Promise<RaceWeekend | null> {
     }
     sessions.push({ name: "Race", date: race.date, time: race.time || "14:00:00Z" });
 
+    const isSprint = !!race.Sprint;
+
     return {
       round: parseInt(race.round),
       raceName: race.raceName,
@@ -86,6 +91,9 @@ export async function getNextRaceWeekend(): Promise<RaceWeekend | null> {
       date: race.date,
       time: race.time || "14:00:00Z",
       circuitId: race.Circuit.circuitId,
+      lat: race.Circuit.Location.lat ?? "0",
+      lon: race.Circuit.Location.long ?? "0",
+      isSprint,
       sessions,
     };
   } catch {
@@ -657,6 +665,139 @@ export async function getDriversWithDetails(): Promise<DriverWithDetails[]> {
   } catch {
     return [];
   }
+}
+
+// ============ POINTS PROGRESSION ============
+
+export interface DriverProgression {
+  code: string;
+  name: string;
+  team: string;
+  teamColor: string;
+  rounds: { round: number; raceName: string; points: number }[];
+}
+
+export async function getSeasonPointsProgression(): Promise<DriverProgression[]> {
+  try {
+    const res = await fetch(`${API_BASE}/current/results.json?limit=500`, {
+      next: { revalidate: 3600 },
+    });
+    const data = await res.json();
+    const races = data.MRData.RaceTable.Races || [];
+
+    const driverMap: Record<string, {
+      name: string;
+      team: string;
+      cumulative: number;
+      rounds: { round: number; raceName: string; points: number }[];
+    }> = {};
+
+    for (const race of races) {
+      const round = parseInt(race.round);
+      for (const result of race.Results) {
+        const code =
+          result.Driver.code ||
+          result.Driver.familyName.substring(0, 3).toUpperCase();
+        const pts = parseFloat(result.points) || 0;
+
+        if (!driverMap[code]) {
+          driverMap[code] = {
+            name: `${result.Driver.givenName} ${result.Driver.familyName}`,
+            team: result.Constructor.name,
+            cumulative: 0,
+            rounds: [],
+          };
+        }
+
+        driverMap[code].cumulative += pts;
+        driverMap[code].rounds.push({
+          round,
+          raceName: race.raceName,
+          points: driverMap[code].cumulative,
+        });
+      }
+    }
+
+    return Object.entries(driverMap)
+      .map(([code, d]) => ({
+        code,
+        name: d.name,
+        team: d.team,
+        teamColor: "#71717a", // resolved after TEAM_COLORS is available via resolveTeamColors()
+        rounds: d.rounds.sort((a, b) => a.round - b.round),
+      }))
+      .filter((d) => d.rounds.length > 0)
+      .sort(
+        (a, b) =>
+          (b.rounds[b.rounds.length - 1]?.points ?? 0) -
+          (a.rounds[a.rounds.length - 1]?.points ?? 0)
+      );
+  } catch {
+    return [];
+  }
+}
+
+// ============ CHAMPIONSHIP MATH ============
+
+export interface ChampionshipContender {
+  position: number;
+  driver: string;
+  code: string;
+  team: string;
+  currentPoints: number;
+  maxPossiblePoints: number;
+  canWin: boolean;
+  deficit: number;
+}
+
+export interface ChampionshipMathData {
+  remainingRaces: number;
+  maxPointsAvailable: number;
+  completedRaces: number;
+  contenders: ChampionshipContender[];
+}
+
+export async function getChampionshipMath(): Promise<ChampionshipMathData | null> {
+  try {
+    const [calendar, standings] = await Promise.all([
+      getSeasonCalendar(),
+      getDriverStandings(),
+    ]);
+
+    const completedRaces = calendar.filter((r) => r.status === "completed").length;
+    const totalRaces = calendar.filter((r) => r.status !== "cancelled").length;
+    const remainingRaces = totalRaces - completedRaces;
+    // Max per race: 25 (win) + 1 (fastest lap) = 26
+    const maxPointsAvailable = remainingRaces * 26;
+    const leaderPoints = standings[0]?.points ?? 0;
+
+    return {
+      remainingRaces,
+      maxPointsAvailable,
+      completedRaces,
+      contenders: standings.map((s) => ({
+        position: s.position,
+        driver: s.driver,
+        code: s.code,
+        team: s.team,
+        currentPoints: s.points,
+        maxPossiblePoints: s.points + maxPointsAvailable,
+        canWin: s.points + maxPointsAvailable >= leaderPoints,
+        deficit: leaderPoints - s.points,
+      })),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function resolveProgressionColors(
+  progressions: DriverProgression[]
+): DriverProgression[] {
+  return progressions.map((d) => ({
+    ...d,
+    teamColor: TEAM_COLORS[d.team] ?? "#71717a",
+  }));
 }
 
 export const TEAM_COLORS: Record<string, string> = {
