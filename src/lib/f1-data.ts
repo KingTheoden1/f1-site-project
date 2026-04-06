@@ -38,6 +38,61 @@ export interface RaceResult {
 
 const API_BASE = "https://api.jolpi.ca/ergast/f1";
 
+export interface RaceSession {
+  name: string;
+  date: string;
+  time: string;
+}
+
+export interface RaceWeekend extends Race {
+  sessions: RaceSession[];
+}
+
+export async function getNextRaceWeekend(): Promise<RaceWeekend | null> {
+  try {
+    const res = await fetch(`${API_BASE}/current/next.json`, {
+      next: { revalidate: 3600 },
+    });
+    const data = await res.json();
+    const race = data.MRData.RaceTable.Races[0];
+    if (!race) return null;
+
+    const sessions: RaceSession[] = [];
+
+    if (race.FirstPractice) {
+      sessions.push({ name: "Practice 1", date: race.FirstPractice.date, time: race.FirstPractice.time });
+    }
+    if (race.SprintQualifying) {
+      sessions.push({ name: "Sprint Qualifying", date: race.SprintQualifying.date, time: race.SprintQualifying.time });
+    } else if (race.SecondPractice) {
+      sessions.push({ name: "Practice 2", date: race.SecondPractice.date, time: race.SecondPractice.time });
+    }
+    if (race.Sprint) {
+      sessions.push({ name: "Sprint", date: race.Sprint.date, time: race.Sprint.time });
+    } else if (race.ThirdPractice) {
+      sessions.push({ name: "Practice 3", date: race.ThirdPractice.date, time: race.ThirdPractice.time });
+    }
+    if (race.Qualifying) {
+      sessions.push({ name: "Qualifying", date: race.Qualifying.date, time: race.Qualifying.time });
+    }
+    sessions.push({ name: "Race", date: race.date, time: race.time || "14:00:00Z" });
+
+    return {
+      round: parseInt(race.round),
+      raceName: race.raceName,
+      circuitName: race.Circuit.circuitName,
+      country: race.Circuit.Location.country,
+      city: race.Circuit.Location.locality,
+      date: race.date,
+      time: race.time || "14:00:00Z",
+      circuitId: race.Circuit.circuitId,
+      sessions,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getNextRace(): Promise<Race | null> {
   try {
     const res = await fetch(`${API_BASE}/current/next.json`, {

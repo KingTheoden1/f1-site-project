@@ -10,7 +10,7 @@ const navLinks = [
   { href: "/circuits", label: "Circuits" },
   { href: "/drivers", label: "Drivers" },
   { href: "/teams", label: "Teams" },
-  { href: "/dashboard", label: "Strategy Room" },
+  { href: "/pit-wall", label: "Pit Wall" },
 ];
 
 export default function Navbar() {
