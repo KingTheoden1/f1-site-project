@@ -28,23 +28,11 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-red-600/10 text-red-400 border border-red-600/20 mb-6">
-              <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-              2026 Season
-            </span>
-          </motion.div>
-
           {/* Title */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.5 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-bold italic text-white tracking-tight leading-tight mb-4 overflow-visible font-[family-name:var(--font-orbitron)]"
           >
             F1{" "}
@@ -52,6 +40,18 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
               PULSE
             </span>
           </motion.h1>
+
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-red-600/10 text-red-400 border border-red-600/20 mb-6">
+              <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+              2026 Season
+            </span>
+          </motion.div>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
