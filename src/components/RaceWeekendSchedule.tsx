@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react";
 import type { RaceWeekend, RaceSession } from "@/lib/f1-data";
+import type { DayForecast } from "@/lib/weather-data";
+import WeatherForecast from "./WeatherForecast";
 
 interface RaceWeekendScheduleProps {
   weekend: RaceWeekend | null;
+  forecasts: DayForecast[];
 }
 
 function getSessionStatus(session: RaceSession): "past" | "live" | "next" | "upcoming" {
@@ -196,10 +199,11 @@ function SessionCard({
 
 export default function RaceWeekendSchedule({
   weekend,
+  forecasts,
 }: RaceWeekendScheduleProps) {
   if (!weekend) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="flex flex-col items-center justify-center py-16 text-center">
         <p className="text-zinc-600 text-sm uppercase tracking-widest mb-2">
           Season Complete
         </p>
@@ -216,10 +220,17 @@ export default function RaceWeekendSchedule({
   return (
     <div>
       {/* Weekend header */}
-      <div className="mb-8">
-        <p className="text-xs text-zinc-600 uppercase tracking-widest mb-1">
-          Round {weekend.round} · Next Race Weekend
-        </p>
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-1">
+          <p className="text-xs text-zinc-600 uppercase tracking-widest">
+            Round {weekend.round} · Next Race Weekend
+          </p>
+          {weekend.isSprint && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+              ⚡ Sprint Weekend
+            </span>
+          )}
+        </div>
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-1">
           {weekend.raceName}
         </h2>
@@ -229,7 +240,7 @@ export default function RaceWeekendSchedule({
       </div>
 
       {/* Session cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-12">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {weekend.sessions.map((session) => (
           <SessionCard
             key={session.name}
@@ -239,16 +250,8 @@ export default function RaceWeekendSchedule({
         ))}
       </div>
 
-      {/* Off-weekend placeholder for future features */}
-      <div className="border border-dashed border-zinc-800 rounded-xl p-10 text-center">
-        <p className="text-zinc-600 text-xs uppercase tracking-widest mb-2">
-          Live Tracker
-        </p>
-        <p className="text-zinc-500 text-sm max-w-sm mx-auto">
-          When a session is active, live positions, tire strategies, pit stops,
-          and race control messages will appear here.
-        </p>
-      </div>
+      {/* Weather forecast */}
+      <WeatherForecast forecasts={forecasts} />
     </div>
   );
 }

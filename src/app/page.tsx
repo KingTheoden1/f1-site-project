@@ -3,7 +3,7 @@ import StandingsTable from "@/components/StandingsTable";
 import RaceResultCard from "@/components/RaceResultCard";
 import SeasonCalendar from "@/components/SeasonCalendar";
 import {
-  getNextRace,
+  getNextRaceWeekend,
   getDriverStandings,
   getConstructorStandings,
   getLastRaceResults,
@@ -13,7 +13,7 @@ import {
 export default async function Home() {
   const [nextRace, driverStandings, constructorStandings, lastRace, seasonCalendar] =
     await Promise.all([
-      getNextRace(),
+      getNextRaceWeekend(),
       getDriverStandings(),
       getConstructorStandings(),
       getLastRaceResults(),

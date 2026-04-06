@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { getNextRaceWeekend } from "@/lib/f1-data";
+import {
+  getNextRaceWeekend,
+  getSeasonPointsProgression,
+  getChampionshipMath,
+  resolveProgressionColors,
+} from "@/lib/f1-data";
+import { getRaceWeekendWeather } from "@/lib/weather-data";
 import PitWallContent from "@/components/PitWallContent";
 
 export const metadata: Metadata = {
@@ -11,5 +17,24 @@ export const metadata: Metadata = {
 export default async function PitWallPage() {
   const weekend = await getNextRaceWeekend();
 
-  return <PitWallContent weekend={weekend} />;
+  const sessionDates = weekend?.sessions.map((s) => s.date) ?? [];
+
+  const [rawProgressions, championshipMath, forecasts] = await Promise.all([
+    getSeasonPointsProgression(),
+    getChampionshipMath(),
+    weekend
+      ? getRaceWeekendWeather(weekend.lat, weekend.lon, sessionDates)
+      : Promise.resolve([]),
+  ]);
+
+  const progressions = resolveProgressionColors(rawProgressions);
+
+  return (
+    <PitWallContent
+      weekend={weekend}
+      progressions={progressions}
+      championshipMath={championshipMath}
+      forecasts={forecasts}
+    />
+  );
 }

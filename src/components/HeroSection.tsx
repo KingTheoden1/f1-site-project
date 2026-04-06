@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 import CountdownTimer from "./CountdownTimer";
-import type { Race } from "@/lib/f1-data";
+import type { RaceWeekend } from "@/lib/f1-data";
 
 interface HeroSectionProps {
-  nextRace: Race | null;
+  nextRace: RaceWeekend | null;
 }
 
 export default function HeroSection({ nextRace }: HeroSectionProps) {
@@ -75,9 +75,16 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
                 <p className="text-xs text-zinc-600 uppercase tracking-widest mb-1">
                   Next Race — Round {nextRace.round}
                 </p>
-                <h2 className="text-xl sm:text-2xl font-bold text-white">
-                  {nextRace.raceName}
-                </h2>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <h2 className="text-xl sm:text-2xl font-bold text-white">
+                    {nextRace.raceName}
+                  </h2>
+                  {nextRace.isSprint && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                      ⚡ Sprint
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-zinc-500 mt-1">
                   {nextRace.circuitName} — {nextRace.city}, {nextRace.country}
                 </p>

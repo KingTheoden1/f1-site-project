@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { RaceWeekend } from "@/lib/f1-data";
+import type { RaceWeekend, DriverProgression, ChampionshipMathData } from "@/lib/f1-data";
+import type { DayForecast } from "@/lib/weather-data";
 import {
   getLatestSession,
   getLiveSessionData,
@@ -11,12 +12,22 @@ import {
 } from "@/lib/openf1-data";
 import RaceWeekendSchedule from "./RaceWeekendSchedule";
 import LiveSessionTracker from "./LiveSessionTracker";
+import PointsProgressionChart from "./PointsProgressionChart";
+import ChampionshipMath from "./ChampionshipMath";
 
 interface PitWallContentProps {
   weekend: RaceWeekend | null;
+  progressions: DriverProgression[];
+  championshipMath: ChampionshipMathData | null;
+  forecasts: DayForecast[];
 }
 
-export default function PitWallContent({ weekend }: PitWallContentProps) {
+export default function PitWallContent({
+  weekend,
+  progressions,
+  championshipMath,
+  forecasts,
+}: PitWallContentProps) {
   const [liveSession, setLiveSession] = useState<OpenF1Session | null>(null);
   const [liveData, setLiveData] = useState<LiveSessionData | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
@@ -86,12 +97,41 @@ export default function PitWallContent({ weekend }: PitWallContentProps) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+        {/* 1. Race weekend schedule + weather */}
+        <RaceWeekendSchedule weekend={weekend} forecasts={forecasts} />
+
+        {/* 2. Live tracker — active during sessions, placeholder otherwise */}
         {liveData ? (
           <LiveSessionTracker data={liveData} />
         ) : (
-          <RaceWeekendSchedule weekend={weekend} />
+          <div className="rounded-xl border border-dashed border-zinc-800 px-6 py-10 flex flex-col items-center justify-center text-center gap-2">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-1.5 h-1.5 bg-zinc-700 rounded-full" />
+              <p className="text-zinc-600 text-xs uppercase tracking-widest">Live Tracker</p>
+            </div>
+            <p className="text-zinc-500 text-sm max-w-sm">
+              Live positions, tire strategies, pit stops, and race control messages will appear here when a session is active.
+            </p>
+          </div>
         )}
+
+        {/* 3. Analytics — always visible */}
+        <div className="space-y-6">
+          <PointsProgressionChart progressions={progressions} />
+          {championshipMath && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChampionshipMath data={championshipMath} />
+              <div className="rounded-xl border border-dashed border-zinc-800 p-6 flex flex-col items-center justify-center text-center gap-2">
+                <p className="text-zinc-600 text-xs uppercase tracking-widest">Coming Soon</p>
+                <p className="text-zinc-500 text-sm font-medium">Head-to-Head Comparison</p>
+                <p className="text-zinc-700 text-xs max-w-xs">
+                  Pick any two drivers and compare stats side-by-side across the season.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
