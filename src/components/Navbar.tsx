@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/drivers", label: "Drivers" },
   { href: "/teams", label: "Teams" },
   { href: "/pit-wall", label: "Pit Wall" },
+  { href: "/debrief", label: "The Debrief" },
 ];
 
 export default function Navbar() {
