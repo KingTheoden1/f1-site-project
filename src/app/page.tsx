@@ -1,4 +1,6 @@
 import HeroSection from "@/components/HeroSection";
+import SeasonSnapshot from "@/components/SeasonSnapshot";
+import ExploreSection from "@/components/ExploreSection";
 import StandingsTable from "@/components/StandingsTable";
 import RaceResultCard from "@/components/RaceResultCard";
 import SeasonCalendar from "@/components/SeasonCalendar";
@@ -20,10 +22,29 @@ export default async function Home() {
       getSeasonCalendar(),
     ]);
 
+  const completedRaces = seasonCalendar.filter((r) => r.winner).length;
+  const totalRaces = seasonCalendar.length;
+
   return (
     <div>
       {/* Hero with countdown */}
       <HeroSection nextRace={nextRace} />
+
+      {/* Season snapshot cards — floats up into hero */}
+      <SeasonSnapshot
+        leader={driverStandings[0] ?? null}
+        lastRace={lastRace}
+        completedRaces={completedRaces}
+        totalRaces={totalRaces}
+      />
+
+      {/* Explore section — feature cards */}
+      <ExploreSection />
+
+      {/* Divider */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="border-t border-zinc-800" />
+      </div>
 
       {/* Main content grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -57,10 +57,11 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-zinc-500 text-lg sm:text-xl max-w-xl mx-auto mb-10"
+            className="text-zinc-400 text-lg sm:text-xl max-w-xl mx-auto mb-10"
           >
-            Live data, race insights, and championship tracking — your F1
-            companion.
+            Every race. Every driver. Every title fight.
+            <br className="hidden sm:block" />
+            <span className="text-zinc-600">Follow the 2026 season as it happens.</span>
           </motion.p>
 
           {/* Next Race Countdown */}
@@ -95,26 +96,34 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
                 targetTime={nextRace.time}
               />
 
-              <a
-                href="https://tv.apple.com/us/channel/formula-1/tvs.sbd.241000"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-4 h-4"
+              <div className="flex flex-col items-center gap-3">
+                <a
+                  href="https://tv.apple.com/us/channel/formula-1/tvs.sbd.241000"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Watch Live
-              </a>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Watch Live
+                </a>
+                <a
+                  href="/debrief"
+                  className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                >
+                  New to F1? Start with The Debrief →
+                </a>
+              </div>
             </motion.div>
           )}
         </div>
