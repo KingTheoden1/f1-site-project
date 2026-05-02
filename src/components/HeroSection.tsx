@@ -118,6 +118,16 @@ export default function HeroSection({ nextRace }: HeroSectionProps) {
                   Watch Live
                 </a>
                 <a
+                  href="/api/calendar"
+                  download="f1-2026-season.ics"
+                  className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Add all races to calendar
+                </a>
+                <a
                   href="/debrief"
                   className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
                 >

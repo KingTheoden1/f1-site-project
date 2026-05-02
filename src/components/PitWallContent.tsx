@@ -80,7 +80,19 @@ export default function PitWallContent({
             </h1>
           </div>
 
-          {/* Live indicator */}
+          {/* Live indicator + calendar */}
+          <div className="flex items-center gap-3">
+            <a
+              href="/api/calendar"
+              download="f1-2026-season.ics"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+              title="Download full season calendar"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Add to Calendar
+            </a>
           <div className="flex items-center gap-2">
             {liveSession ? (
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-600/15 text-red-400 border border-red-600/30">
@@ -93,6 +105,7 @@ export default function PitWallContent({
                 No Active Session
               </span>
             ) : null}
+          </div>
           </div>
         </div>
       </div>
