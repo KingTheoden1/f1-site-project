@@ -2,7 +2,16 @@
 
 import type { LiveSessionData, OpenF1RaceControl, OpenF1Pit, DriverRow } from "@/lib/openf1-data";
 
-// ─── Utilities ───────────────────────────────────────────────────────────────
+// ─── Session type helpers ─────────────────────────────────────────────────────
+
+function sessionCategory(type: string): "race" | "qualifying" | "practice" {
+  const t = type.toLowerCase();
+  if (t === "race" || t === "sprint") return "race";
+  if (t.includes("qualifying") || t.includes("shootout")) return "qualifying";
+  return "practice";
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
 
 function formatLapTime(seconds: number | null): string {
   if (!seconds) return "—";
@@ -57,7 +66,6 @@ function getSessionFlag(raceControl: OpenF1RaceControl[]): {
   color: string;
   bg: string;
 } {
-  // Walk messages newest-first and find the most recent meaningful flag/status
   for (const msg of raceControl) {
     const m = msg.message.toUpperCase();
     if (m.includes("RED FLAG") || msg.flag === "RED") return { label: "RED FLAG", color: "#ef4444", bg: "rgba(239,68,68,0.15)" };
@@ -70,9 +78,45 @@ function getSessionFlag(raceControl: OpenF1RaceControl[]): {
   return { label: "GREEN", color: "#22c55e", bg: "rgba(34,197,94,0.12)" };
 }
 
+// ─── Qualifying phase detection ───────────────────────────────────────────────
+
+function getQualifyingPhase(raceControl: OpenF1RaceControl[]): string | null {
+  // Walk messages newest-first and find the most recent phase start
+  for (const msg of raceControl) {
+    const m = msg.message.toUpperCase();
+    // Sprint Qualifying / Shootout phases
+    if (m.includes("SQ3") || (m.includes("SPRINT") && m.includes("Q3"))) return "SQ3";
+    if (m.includes("SQ2") || (m.includes("SPRINT") && m.includes("Q2"))) return "SQ2";
+    if (m.includes("SQ1") || (m.includes("SPRINT") && m.includes("Q1"))) return "SQ1";
+    // Regular qualifying phases
+    if (m.includes("Q3")) return "Q3";
+    if (m.includes("Q2")) return "Q2";
+    if (m.includes("Q1")) return "Q1";
+  }
+  return null;
+}
+
+// ─── Session label ────────────────────────────────────────────────────────────
+
+function sessionLabel(sessionType: string): string {
+  const map: Record<string, string> = {
+    "practice 1":        "FP1",
+    "practice 2":        "FP2",
+    "practice 3":        "FP3",
+    "qualifying":        "Qualifying",
+    "sprint":            "Sprint Race",
+    "sprint qualifying": "Sprint Qualifying",
+    "sprint shootout":   "Sprint Shootout",
+    "race":              "Race",
+  };
+  return map[sessionType.toLowerCase()] ?? sessionType;
+}
+
 // ─── Driver position table ────────────────────────────────────────────────────
 
-function PositionTable({ rows }: { rows: DriverRow[] }) {
+function PositionTable({ rows, category }: { rows: DriverRow[]; category: "race" | "qualifying" | "practice" }) {
+  const showBestLap = category !== "race";
+
   return (
     <div className="overflow-x-auto rounded-xl border border-zinc-800">
       <table className="w-full text-sm">
@@ -83,7 +127,9 @@ function PositionTable({ rows }: { rows: DriverRow[] }) {
             <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider hidden sm:table-cell">Team</th>
             <th className="px-4 py-3 text-center text-xs font-semibold text-zinc-600 uppercase tracking-wider">Tyre</th>
             <th className="px-4 py-3 text-center text-xs font-semibold text-zinc-600 uppercase tracking-wider hidden md:table-cell">Pits</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-zinc-600 uppercase tracking-wider">Last Lap</th>
+            <th className="px-4 py-3 text-right text-xs font-semibold text-zinc-600 uppercase tracking-wider">
+              {showBestLap ? "Best Lap" : "Last Lap"}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -142,10 +188,10 @@ function PositionTable({ rows }: { rows: DriverRow[] }) {
                 <span className="text-zinc-400 tabular-nums">{row.pitCount}</span>
               </td>
 
-              {/* Last lap */}
+              {/* Best / Last lap */}
               <td className="px-4 py-3 text-right">
                 <span className="font-mono text-xs text-zinc-300 tabular-nums">
-                  {formatLapTime(row.lastLapTime)}
+                  {formatLapTime(showBestLap ? row.bestLapTime : row.lastLapTime)}
                 </span>
               </td>
             </tr>
@@ -246,14 +292,14 @@ export default function LiveSessionTracker({ data }: LiveSessionTrackerProps) {
   const { session, driverRows, currentLap, raceControl, pits } = data;
 
   const flag = getSessionFlag(raceControl);
-
-  // Total laps is only meaningful for Race sessions
-  const isRace = session.session_type === "Race";
+  const category = sessionCategory(session.session_type);
+  const qualiPhase = category === "qualifying" ? getQualifyingPhase(raceControl) : null;
 
   return (
     <div className="space-y-6">
       {/* Session status bar */}
       <div className="flex flex-wrap items-center gap-3">
+        {/* Flag / status */}
         <div
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
           style={{ color: flag.color, backgroundColor: flag.bg, border: `1px solid ${flag.color}30` }}
@@ -262,17 +308,24 @@ export default function LiveSessionTracker({ data }: LiveSessionTrackerProps) {
           {flag.label}
         </div>
 
-        {isRace && currentLap > 0 && (
+        {/* Race: show lap counter */}
+        {category === "race" && currentLap > 0 && (
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm font-semibold text-white">
             LAP {currentLap}
           </div>
         )}
 
-        {!isRace && (
-          <div className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm font-semibold text-white">
-            {session.session_name}
+        {/* Qualifying: show Q phase if detected */}
+        {category === "qualifying" && qualiPhase && (
+          <div className="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-sm font-bold text-red-400">
+            {qualiPhase}
           </div>
         )}
+
+        {/* Session name badge */}
+        <div className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm font-semibold text-white">
+          {sessionLabel(session.session_type)}
+        </div>
 
         <span className="text-zinc-600 text-xs ml-auto hidden sm:block">
           {session.circuit_short_name} · {session.country_name}
@@ -280,7 +333,7 @@ export default function LiveSessionTracker({ data }: LiveSessionTrackerProps) {
       </div>
 
       {/* Position table */}
-      <PositionTable rows={driverRows} />
+      <PositionTable rows={driverRows} category={category} />
 
       {/* Race control + pit log */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

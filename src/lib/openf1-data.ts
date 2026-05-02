@@ -79,6 +79,7 @@ export interface DriverRow {
   compound: string;
   tyreAge: number;
   lastLapTime: number | null;
+  bestLapTime: number | null;
   pitCount: number;
 }
 
@@ -93,10 +94,12 @@ export interface LiveSessionData {
 export function isSessionLive(session: OpenF1Session): boolean {
   const now = Date.now();
   const start = new Date(session.date_start).getTime();
-  // Use date_end if available, otherwise allow up to 4 hours from start
-  const end = session.date_end
+  // Add a 30-min grace period after date_end in case the session runs long
+  // or OpenF1's scheduled end is slightly early. Fall back to 4 h if no end set.
+  const scheduledEnd = session.date_end
     ? new Date(session.date_end).getTime()
     : start + 4 * 60 * 60 * 1000;
+  const end = scheduledEnd + 30 * 60 * 1000;
   return now >= start && now <= end;
 }
 
@@ -108,8 +111,27 @@ async function openf1Fetch<T>(path: string): Promise<T> {
 
 export async function getLatestSession(): Promise<OpenF1Session | null> {
   try {
+    const currentYear = new Date().getFullYear();
+
+    // Primary: session_key=latest
     const sessions = await openf1Fetch<OpenF1Session[]>("/sessions?session_key=latest");
-    return sessions[0] ?? null;
+    const latest = sessions[0] ?? null;
+
+    // If the latest session is from the current year, use it
+    if (latest && latest.year === currentYear) return latest;
+
+    // Fallback: fetch all sessions for this year and pick the most recent
+    const yearSessions = await openf1Fetch<OpenF1Session[]>(
+      `/sessions?year=${currentYear}`
+    );
+    if (yearSessions.length > 0) {
+      return yearSessions.sort(
+        (a, b) => new Date(b.date_start).getTime() - new Date(a.date_start).getTime()
+      )[0];
+    }
+
+    // Last resort: return whatever session_key=latest gave us
+    return latest;
   } catch {
     return null;
   }
@@ -125,17 +147,28 @@ export async function getLiveSessionData(
 
     if (!session) return null;
 
-    const [drivers, allPositions, stints, pits, allLaps, raceControl] =
-      await Promise.all([
-        openf1Fetch<OpenF1Driver[]>(`/drivers?session_key=${sessionKey}`),
-        openf1Fetch<OpenF1Position[]>(`/position?session_key=${sessionKey}`),
-        openf1Fetch<OpenF1Stint[]>(`/stints?session_key=${sessionKey}`),
-        openf1Fetch<OpenF1Pit[]>(`/pit?session_key=${sessionKey}`),
-        openf1Fetch<OpenF1Lap[]>(`/laps?session_key=${sessionKey}`),
-        openf1Fetch<OpenF1RaceControl[]>(
-          `/race_control?session_key=${sessionKey}`
-        ),
-      ]);
+    // Use allSettled so a single failing endpoint doesn't kill the whole tracker
+    const settled = await Promise.allSettled([
+      openf1Fetch<OpenF1Driver[]>(`/drivers?session_key=${sessionKey}`),
+      openf1Fetch<OpenF1Position[]>(`/position?session_key=${sessionKey}`),
+      openf1Fetch<OpenF1Stint[]>(`/stints?session_key=${sessionKey}`),
+      openf1Fetch<OpenF1Pit[]>(`/pit?session_key=${sessionKey}`),
+      openf1Fetch<OpenF1Lap[]>(`/laps?session_key=${sessionKey}`),
+      openf1Fetch<OpenF1RaceControl[]>(`/race_control?session_key=${sessionKey}`),
+    ]);
+
+    const unwrap = <T,>(r: PromiseSettledResult<T[]>): T[] =>
+      r.status === "fulfilled" ? r.value : [];
+
+    const drivers     = unwrap(settled[0] as PromiseSettledResult<OpenF1Driver[]>);
+    const allPositions = unwrap(settled[1] as PromiseSettledResult<OpenF1Position[]>);
+    const stints      = unwrap(settled[2] as PromiseSettledResult<OpenF1Stint[]>);
+    const pits        = unwrap(settled[3] as PromiseSettledResult<OpenF1Pit[]>);
+    const allLaps     = unwrap(settled[4] as PromiseSettledResult<OpenF1Lap[]>);
+    const raceControl = unwrap(settled[5] as PromiseSettledResult<OpenF1RaceControl[]>);
+
+    // If no drivers came back the session data isn't ready yet
+    if (drivers.length === 0) return null;
 
     // Latest position per driver
     const latestPositions: Record<number, OpenF1Position> = {};
@@ -152,6 +185,17 @@ export async function getLiveSessionData(
       const existing = latestLaps[l.driver_number];
       if (!existing || l.lap_number > existing.lap_number) {
         latestLaps[l.driver_number] = l;
+      }
+    }
+
+    // Best (fastest) lap per driver — used for qualifying / practice display
+    const bestLaps: Record<number, number> = {};
+    for (const l of allLaps) {
+      if (l.lap_duration !== null) {
+        const prev = bestLaps[l.driver_number];
+        if (prev === undefined || l.lap_duration < prev) {
+          bestLaps[l.driver_number] = l.lap_duration;
+        }
       }
     }
 
@@ -187,6 +231,7 @@ export async function getLiveSessionData(
         compound: stint?.compound ?? "UNKNOWN",
         tyreAge: stint ? (stint.tyre_age_at_start ?? 0) + lapOnTyre : 0,
         lastLapTime: lap?.lap_duration ?? null,
+        bestLapTime: bestLaps[d.driver_number] ?? null,
         pitCount: pitCounts[d.driver_number] ?? 0,
       };
     });
