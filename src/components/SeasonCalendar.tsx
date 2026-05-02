@@ -17,9 +17,22 @@ export default function SeasonCalendar({ races, nextRaceName }: SeasonCalendarPr
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-lg font-bold text-white">Season Calendar</h3>
-        <span className="text-xs text-zinc-500">
-          {completedCount}/{totalActive} completed
-        </span>
+        <div className="flex items-center gap-3">
+          <a
+            href="/api/calendar"
+            download="f1-2026-season.ics"
+            className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors"
+            title="Add all races to your calendar"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Add to Calendar
+          </a>
+          <span className="text-xs text-zinc-500">
+            {completedCount}/{totalActive} completed
+          </span>
+        </div>
       </div>
 
       {/* Progress bar */}

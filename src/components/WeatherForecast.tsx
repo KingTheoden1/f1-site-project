@@ -86,7 +86,7 @@ export default function WeatherForecast({ forecasts }: WeatherForecastProps) {
               </div>
               <div className="flex items-center justify-between mt-0.5">
                 <span className="text-white text-xs font-mono font-semibold">
-                  {day.maxTemp}° / {day.minTemp}°
+                  {Math.round(day.maxTemp * 9/5 + 32)}°F / {day.maxTemp}°C
                 </span>
                 {day.precipitationProbability > 0 && (
                   <span className={`text-xs font-mono ${day.precipitationProbability >= 50 ? "text-blue-400" : "text-zinc-500"}`}>
