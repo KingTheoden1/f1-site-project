@@ -103,6 +103,20 @@ export function isSessionLive(session: OpenF1Session): boolean {
   return now >= start && now <= end;
 }
 
+// ─── F1 Live Timing (free, no auth, works during live sessions) ───────────────
+
+export async function getF1LiveTimingData(): Promise<LiveSessionData | null> {
+  try {
+    const res = await fetch("/api/live-timing", { cache: "no-store" });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
+// ─── OpenF1 (free after sessions end; requires API key during live sessions) ──
+
 async function openf1Fetch<T>(path: string): Promise<T> {
   const res = await fetch(`${OPENF1_BASE}${path}`, { cache: "no-store" });
   if (!res.ok) throw new Error(`OpenF1 fetch failed: ${path}`);

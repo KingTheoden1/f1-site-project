@@ -6,9 +6,9 @@ import type { DayForecast } from "@/lib/weather-data";
 import {
   getLatestSession,
   getLiveSessionData,
+  getF1LiveTimingData,
   isSessionLive,
   type LiveSessionData,
-  type OpenF1Session,
 } from "@/lib/openf1-data";
 import RaceWeekendSchedule from "./RaceWeekendSchedule";
 import LiveSessionTracker from "./LiveSessionTracker";
@@ -28,43 +28,38 @@ export default function PitWallContent({
   championshipMath,
   forecasts,
 }: PitWallContentProps) {
-  const [liveSession, setLiveSession] = useState<OpenF1Session | null>(null);
   const [liveData, setLiveData] = useState<LiveSessionData | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
 
-  const fetchLiveData = useCallback(async (sessionKey: number) => {
-    const data = await getLiveSessionData(sessionKey);
-    setLiveData(data);
-  }, []);
+  // Derived — if we have data, there's a live session
+  const liveSession = liveData?.session ?? null;
 
-  const checkSession = useCallback(async () => {
+  const poll = useCallback(async () => {
+    // 1. Try the official F1 live timing API first (free, no auth, works during live sessions)
+    const ltData = await getF1LiveTimingData();
+    if (ltData) {
+      setLiveData(ltData);
+      setSessionChecked(true);
+      return;
+    }
+
+    // 2. Fall back to OpenF1 (works after sessions end for historical replay)
     const session = await getLatestSession();
     if (session && isSessionLive(session)) {
-      setLiveSession(session);
-      await fetchLiveData(session.session_key);
+      const data = await getLiveSessionData(session.session_key);
+      setLiveData(data);
     } else {
-      setLiveSession(null);
       setLiveData(null);
     }
     setSessionChecked(true);
-  }, [fetchLiveData]);
+  }, []);
 
-  // Initial check + poll every 30s to detect session start/end
+  // Poll every 10 s — fast enough for live data, handles session start/end detection
   useEffect(() => {
-    checkSession();
-    const interval = setInterval(checkSession, 30_000);
+    poll();
+    const interval = setInterval(poll, 10_000);
     return () => clearInterval(interval);
-  }, [checkSession]);
-
-  // While live, poll for updated race data every 10s
-  useEffect(() => {
-    if (!liveSession) return;
-    const interval = setInterval(
-      () => fetchLiveData(liveSession.session_key),
-      10_000
-    );
-    return () => clearInterval(interval);
-  }, [liveSession, fetchLiveData]);
+  }, [poll]);
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -93,19 +88,19 @@ export default function PitWallContent({
               </svg>
               Add to Calendar
             </a>
-          <div className="flex items-center gap-2">
-            {liveSession ? (
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-600/15 text-red-400 border border-red-600/30">
-                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                LIVE — {liveSession.session_name.toUpperCase()}
-              </span>
-            ) : sessionChecked ? (
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-500 border border-zinc-700">
-                <span className="w-1.5 h-1.5 bg-zinc-600 rounded-full" />
-                No Active Session
-              </span>
-            ) : null}
-          </div>
+            <div className="flex items-center gap-2">
+              {liveSession ? (
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-600/15 text-red-400 border border-red-600/30">
+                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                  LIVE — {liveSession.session_name.toUpperCase()}
+                </span>
+              ) : sessionChecked ? (
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-500 border border-zinc-700">
+                  <span className="w-1.5 h-1.5 bg-zinc-600 rounded-full" />
+                  No Active Session
+                </span>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
