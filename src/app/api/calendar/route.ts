@@ -1,5 +1,14 @@
 const API_BASE = "https://api.jolpi.ca/ergast/f1";
 
+// Corrected race start times (UTC) for races that ran earlier/later than scheduled
+const RACE_TIME_OVERRIDES: Record<string, string> = {
+  "2026-05-03": "17:00:00Z", // Miami GP — started early due to rain (was 20:00:00Z)
+};
+
+function resolveRaceTime(date: string, apiTime?: string): string {
+  return RACE_TIME_OVERRIDES[date] ?? (apiTime && apiTime !== "00:00:00Z" ? apiTime : "13:00:00Z");
+}
+
 interface Session {
   date: string;
   time: string;
@@ -115,8 +124,8 @@ export async function GET() {
       );
     }
 
-    // Race itself
-    const raceTime = race.time && race.time !== "00:00:00Z" ? race.time : "13:00:00Z";
+    // Race itself — use corrected time if the race ran at a different hour than scheduled
+    const raceTime = resolveRaceTime(race.date, race.time);
     lines.push(
       ...makeEvent(
         `f1-2026-r${round}-race@f1pulse`,

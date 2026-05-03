@@ -38,6 +38,16 @@ export interface RaceResult {
 
 const API_BASE = "https://api.jolpi.ca/ergast/f1";
 
+// Actual race start times that differ from the originally scheduled time.
+// Key: race date (YYYY-MM-DD). Value: corrected UTC time string.
+const RACE_TIME_OVERRIDES: Record<string, string> = {
+  "2026-05-03": "17:00:00Z", // Miami GP — started early due to rain (was 20:00:00Z / 3 pm CT)
+};
+
+function raceTime(date: string, apiTime: string | undefined, fallback = "14:00:00Z"): string {
+  return RACE_TIME_OVERRIDES[date] ?? apiTime ?? fallback;
+}
+
 export interface RaceSession {
   name: string;
   date: string;
@@ -78,7 +88,7 @@ export async function getNextRaceWeekend(): Promise<RaceWeekend | null> {
     if (race.Qualifying) {
       sessions.push({ name: "Qualifying", date: race.Qualifying.date, time: race.Qualifying.time });
     }
-    sessions.push({ name: "Race", date: race.date, time: race.time || "14:00:00Z" });
+    sessions.push({ name: "Race", date: race.date, time: raceTime(race.date, race.time) });
 
     const isSprint = !!race.Sprint;
 
@@ -89,7 +99,7 @@ export async function getNextRaceWeekend(): Promise<RaceWeekend | null> {
       country: race.Circuit.Location.country,
       city: race.Circuit.Location.locality,
       date: race.date,
-      time: race.time || "14:00:00Z",
+      time: raceTime(race.date, race.time),
       circuitId: race.Circuit.circuitId,
       lat: race.Circuit.Location.lat ?? "0",
       lon: race.Circuit.Location.long ?? "0",
@@ -117,7 +127,7 @@ export async function getNextRace(): Promise<Race | null> {
       country: race.Circuit.Location.country,
       city: race.Circuit.Location.locality,
       date: race.date,
-      time: race.time || "14:00:00Z",
+      time: raceTime(race.date, race.time),
       circuitId: race.Circuit.circuitId,
     };
   } catch {
@@ -292,7 +302,7 @@ export async function getSeasonCalendar(): Promise<SeasonRace[]> {
           country: race.Circuit.Location.country,
           city: race.Circuit.Location.locality,
           date: race.date,
-          time: race.time || "00:00:00Z",
+          time: raceTime(race.date, race.time, "00:00:00Z"),
           circuitName: race.Circuit.circuitName,
           status: today >= dayAfterRace ? "completed" as const : "upcoming" as const,
         };
@@ -392,7 +402,7 @@ export async function getCircuits(): Promise<CircuitWithDetails[]> {
         round: parseInt(race.round),
         raceName: race.raceName,
         date: race.date,
-        time: race.time || "00:00:00Z",
+        time: raceTime(race.date, race.time, "00:00:00Z"),
       };
     }
 
