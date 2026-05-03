@@ -66,16 +66,33 @@ function getSessionFlag(raceControl: OpenF1RaceControl[]): {
   color: string;
   bg: string;
 } {
+  const GREEN = { label: "GREEN",          color: "#22c55e", bg: "rgba(34,197,94,0.12)"   };
+  const SC    = { label: "SAFETY CAR",     color: "#f59e0b", bg: "rgba(245,158,11,0.15)"  };
+  const VSC   = { label: "VSC",            color: "#f59e0b", bg: "rgba(245,158,11,0.10)"  };
+  const RED   = { label: "RED FLAG",       color: "#ef4444", bg: "rgba(239,68,68,0.15)"   };
+  const CHKRD = { label: "CHEQUERED FLAG", color: "#e5e5e5", bg: "rgba(229,229,229,0.10)" };
+
+  // Walk newest-first — first match wins
   for (const msg of raceControl) {
     const m = msg.message.toUpperCase();
-    if (m.includes("RED FLAG") || msg.flag === "RED") return { label: "RED FLAG", color: "#ef4444", bg: "rgba(239,68,68,0.15)" };
-    if (m.includes("SAFETY CAR DEPLOYED")) return { label: "SAFETY CAR", color: "#f59e0b", bg: "rgba(245,158,11,0.15)" };
-    if (m.includes("VIRTUAL SAFETY CAR DEPLOYED")) return { label: "VSC", color: "#f59e0b", bg: "rgba(245,158,11,0.10)" };
-    if (m.includes("SAFETY CAR IN THIS LAP") || m.includes("SAFETY CAR RETURNING")) return { label: "SC ENDING", color: "#f59e0b", bg: "rgba(245,158,11,0.08)" };
-    if (m.includes("GREEN LIGHT") || m.includes("GREEN FLAG") || msg.flag === "GREEN") return { label: "GREEN", color: "#22c55e", bg: "rgba(34,197,94,0.12)" };
-    if (msg.flag === "CHEQUERED") return { label: "CHEQUERED FLAG", color: "#e5e5e5", bg: "rgba(229,229,229,0.10)" };
+    const f = (msg.flag ?? "").toUpperCase();
+
+    if (f === "CHEQUERED" || m.includes("CHEQUERED"))                                          return CHKRD;
+    if (m.includes("RED FLAG")              || f === "RED")                                    return RED;
+    // Match VSC deployed before SC deployed (VSC message also contains "SAFETY CAR")
+    if (m.includes("VIRTUAL SAFETY CAR DEPLOYED") || (m.includes("VSC") && m.includes("DEPLOYED"))) return VSC;
+    if (m.includes("SAFETY CAR DEPLOYED"))                                                     return SC;
+    // SC/VSC withdrawal = green flag racing has resumed — never show "SC ENDING" stale
+    if (
+      m.includes("SAFETY CAR IN THIS LAP") ||
+      m.includes("SAFETY CAR RETURNING")   ||
+      m.includes("VIRTUAL SAFETY CAR ENDING") ||
+      m.includes("VSC ENDING")
+    )                                                                                          return GREEN;
+    if (m.includes("GREEN LIGHT") || m.includes("GREEN FLAG") || f === "GREEN")               return GREEN;
   }
-  return { label: "GREEN", color: "#22c55e", bg: "rgba(34,197,94,0.12)" };
+
+  return GREEN; // no relevant message → assume green
 }
 
 // ─── Qualifying phase detection ───────────────────────────────────────────────

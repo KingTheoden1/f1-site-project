@@ -8,22 +8,37 @@ import WeatherForecast from "./WeatherForecast";
 interface RaceWeekendScheduleProps {
   weekend: RaceWeekend | null;
   forecasts: DayForecast[];
+  liveSessionType?: string | null;
+  liveSessionStart?: string | null;
 }
 
-function getSessionStatus(session: RaceSession): "past" | "live" | "next" | "upcoming" {
+function getSessionStatus(
+  session: RaceSession,
+  liveSessionType?: string | null
+): "past" | "live" | "next" | "upcoming" {
+  // If our live API confirms this session is active, trust that over the schedule
+  if (liveSessionType && session.name.toLowerCase() === liveSessionType.toLowerCase()) {
+    return "live";
+  }
+
   const now = Date.now();
   const start = new Date(`${session.date}T${session.time}`).getTime();
-  const end = start + 2 * 60 * 60 * 1000; // assume ~2h duration
+  const end = start + 2 * 60 * 60 * 1000;
 
   if (now >= start && now <= end) return "live";
   if (now > end) return "past";
   return "upcoming";
 }
 
-function getNextSession(sessions: RaceSession[]): RaceSession | null {
+function getNextSession(
+  sessions: RaceSession[],
+  liveSessionType?: string | null
+): RaceSession | null {
   const now = Date.now();
   return (
     sessions.find((s) => {
+      // Never mark a live session as "next"
+      if (liveSessionType && s.name.toLowerCase() === liveSessionType.toLowerCase()) return false;
       const start = new Date(`${s.date}T${s.time}`).getTime();
       return start > now;
     }) ?? null
@@ -39,13 +54,15 @@ function formatSessionDate(date: string, time: string): string {
   });
 }
 
-function formatSessionTime(date: string, time: string): string {
-  const d = new Date(`${date}T${time}`);
-  return d.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
-  });
+function formatSessionTime(date: string, time: string, overrideIso?: string | null): string {
+  const d = overrideIso ? new Date(overrideIso) : new Date(`${date}T${time}`);
+  return (
+    d.toLocaleTimeString("en-US", {
+      timeZone: "America/Chicago",
+      hour: "numeric",
+      minute: "2-digit",
+    }) + " CT"
+  );
 }
 
 function useCountdown(date: string, time: string) {
@@ -121,11 +138,17 @@ const SESSION_ABBREV: Record<string, string> = {
 function SessionCard({
   session,
   isNext,
+  liveSessionType,
+  liveSessionStart,
 }: {
   session: RaceSession;
   isNext: boolean;
+  liveSessionType?: string | null;
+  liveSessionStart?: string | null;
 }) {
-  const status = getSessionStatus(session);
+  const status = getSessionStatus(session, liveSessionType);
+  // Use actual API start time when live (handles early starts due to weather etc.)
+  const timeOverride = status === "live" ? liveSessionStart : null;
   const abbrev = SESSION_ABBREV[session.name] ?? session.name;
 
   const borderClass =
@@ -182,7 +205,7 @@ function SessionCard({
         {formatSessionDate(session.date, session.time)}
       </p>
       <p className={`text-xs ${status === "past" ? "text-zinc-700" : "text-zinc-500"}`}>
-        {formatSessionTime(session.date, session.time)}
+        {formatSessionTime(session.date, session.time, timeOverride)}
       </p>
 
       {/* Countdown for next session */}
@@ -200,6 +223,8 @@ function SessionCard({
 export default function RaceWeekendSchedule({
   weekend,
   forecasts,
+  liveSessionType,
+  liveSessionStart,
 }: RaceWeekendScheduleProps) {
   if (!weekend) {
     return (
@@ -215,7 +240,7 @@ export default function RaceWeekendSchedule({
     );
   }
 
-  const nextSession = getNextSession(weekend.sessions);
+  const nextSession = getNextSession(weekend.sessions, liveSessionType);
 
   return (
     <div>
@@ -246,6 +271,8 @@ export default function RaceWeekendSchedule({
             key={session.name}
             session={session}
             isNext={session === nextSession}
+            liveSessionType={liveSessionType}
+            liveSessionStart={liveSessionStart}
           />
         ))}
       </div>

@@ -3,13 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { RaceWeekend, DriverProgression, ChampionshipMathData } from "@/lib/f1-data";
 import type { DayForecast } from "@/lib/weather-data";
-import {
-  getLatestSession,
-  getLiveSessionData,
-  getF1LiveTimingData,
-  isSessionLive,
-  type LiveSessionData,
-} from "@/lib/openf1-data";
+import { getF1LiveTimingData, type LiveSessionData } from "@/lib/openf1-data";
 import RaceWeekendSchedule from "./RaceWeekendSchedule";
 import LiveSessionTracker from "./LiveSessionTracker";
 import PointsProgressionChart from "./PointsProgressionChart";
@@ -35,22 +29,10 @@ export default function PitWallContent({
   const liveSession = liveData?.session ?? null;
 
   const poll = useCallback(async () => {
-    // 1. Try the official F1 live timing API first (free, no auth, works during live sessions)
-    const ltData = await getF1LiveTimingData();
-    if (ltData) {
-      setLiveData(ltData);
-      setSessionChecked(true);
-      return;
-    }
-
-    // 2. Fall back to OpenF1 (works after sessions end for historical replay)
-    const session = await getLatestSession();
-    if (session && isSessionLive(session)) {
-      const data = await getLiveSessionData(session.session_key);
-      setLiveData(data);
-    } else {
-      setLiveData(null);
-    }
+    // All data fetching happens server-side via /api/live-timing
+    // (tries F1 Live Timing static files, then authenticated OpenF1)
+    const data = await getF1LiveTimingData();
+    setLiveData(data);
     setSessionChecked(true);
   }, []);
 
@@ -107,7 +89,12 @@ export default function PitWallContent({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         {/* 1. Race weekend schedule + weather */}
-        <RaceWeekendSchedule weekend={weekend} forecasts={forecasts} />
+        <RaceWeekendSchedule
+          weekend={weekend}
+          forecasts={forecasts}
+          liveSessionType={liveData?.session.session_type ?? null}
+          liveSessionStart={liveData?.session.date_start ?? null}
+        />
 
         {/* 2. Live tracker — active during sessions, placeholder otherwise */}
         {liveData ? (
