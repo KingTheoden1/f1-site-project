@@ -111,30 +111,6 @@ export async function getNextRaceWeekend(): Promise<RaceWeekend | null> {
   }
 }
 
-export async function getNextRace(): Promise<Race | null> {
-  try {
-    const res = await fetch(`${API_BASE}/current/next.json`, {
-      next: { revalidate: 3600 },
-    });
-    const data = await res.json();
-    const race = data.MRData.RaceTable.Races[0];
-    if (!race) return null;
-
-    return {
-      round: parseInt(race.round),
-      raceName: race.raceName,
-      circuitName: race.Circuit.circuitName,
-      country: race.Circuit.Location.country,
-      city: race.Circuit.Location.locality,
-      date: race.date,
-      time: raceTime(race.date, race.time),
-      circuitId: race.Circuit.circuitId,
-    };
-  } catch {
-    return null;
-  }
-}
-
 export async function getDriverStandings(): Promise<DriverStanding[]> {
   try {
     const res = await fetch(`${API_BASE}/current/driverStandings.json`, {

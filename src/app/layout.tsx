@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Titillium_Web, Orbitron } from "next/font/google";
+import { Geist, Geist_Mono, Orbitron } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import F1Logo from "@/components/F1Logo";
 import "./globals.css";
@@ -12,12 +12,6 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-});
-
-const titillium = Titillium_Web({
-  variable: "--font-titillium",
-  subsets: ["latin"],
-  weight: ["700", "900"],
 });
 
 const orbitron = Orbitron({
@@ -40,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${titillium.variable} ${orbitron.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-50">
         <Navbar />

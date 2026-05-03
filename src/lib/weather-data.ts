@@ -1,7 +1,6 @@
 export interface DayForecast {
   date: string; // "YYYY-MM-DD"
   maxTemp: number;
-  minTemp: number;
   precipitationProbability: number;
   weatherCode: number;
 }
@@ -33,11 +32,10 @@ export async function getRaceWeekendWeather(
 
     if (!data.daily?.time) return [];
 
-    const { time, temperature_2m_max, temperature_2m_min, precipitation_probability_max, weathercode } =
+    const { time, temperature_2m_max, precipitation_probability_max, weathercode } =
       data.daily as {
         time: string[];
         temperature_2m_max: number[];
-        temperature_2m_min: number[];
         precipitation_probability_max: number[];
         weathercode: number[];
       };
@@ -51,7 +49,6 @@ export async function getRaceWeekendWeather(
         return {
           date,
           maxTemp: Math.round(temperature_2m_max[idx]),
-          minTemp: Math.round(temperature_2m_min[idx]),
           precipitationProbability: precipitation_probability_max[idx] ?? 0,
           weatherCode: weathercode[idx],
         };
