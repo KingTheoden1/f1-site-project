@@ -394,15 +394,143 @@ function ChampionshipExplainer() {
   );
 }
 
+// ─── F1 Basics data ───────────────────────────────────────────────────────────
+
+const TEAMS_2026 = [
+  { name: "Ferrari",        color: "#ED1131", drivers: ["Charles Leclerc", "Lewis Hamilton"] },
+  { name: "McLaren",        color: "#F47600", drivers: ["Lando Norris", "Oscar Piastri"] },
+  { name: "Red Bull Racing",color: "#4781D7", drivers: ["Max Verstappen", "Isack Hadjar"] },
+  { name: "Mercedes",       color: "#00D7B6", drivers: ["George Russell", "Kimi Antonelli"] },
+  { name: "Aston Martin",   color: "#229971", drivers: ["Fernando Alonso", "Lance Stroll"] },
+  { name: "Alpine",         color: "#00A1E8", drivers: ["Pierre Gasly", "Franco Colapinto"] },
+  { name: "Williams",       color: "#1868DB", drivers: ["Alexander Albon", "Carlos Sainz"] },
+  { name: "Haas",           color: "#9C9FA2", drivers: ["Esteban Ocon", "Oliver Bearman"] },
+  { name: "Audi",           color: "#F50537", drivers: ["Nico Hülkenberg", "Gabriel Bortoleto"] },
+  { name: "Cadillac",       color: "#C8A951", drivers: ["Sergio Pérez", "Valtteri Bottas"] },
+  { name: "Racing Bulls",   color: "#6C98FF", drivers: ["Liam Lawson", "Arvid Lindblad"] },
+];
+
+const CIRCUITS_2026: { name: string; country: string; flag: string; note: string }[] = [
+  { name: "Bahrain International Circuit",    country: "Bahrain",     flag: "🇧🇭", note: "Traditional season opener — a night race under floodlights." },
+  { name: "Jeddah Corniche Circuit",          country: "Saudi Arabia",flag: "🇸🇦", note: "One of the fastest street circuits on the calendar." },
+  { name: "Albert Park",                      country: "Australia",   flag: "🇦🇺", note: "Melbourne's semi-permanent street circuit through parkland." },
+  { name: "Suzuka",                           country: "Japan",       flag: "🇯🇵", note: "An iconic figure-of-eight layout loved by drivers worldwide." },
+  { name: "Shanghai International Circuit",   country: "China",       flag: "🇨🇳", note: "Home of the Chinese GP — returned to the calendar in 2024." },
+  { name: "Miami International Autodrome",    country: "USA",         flag: "🇺🇸", note: "Street circuit around Hard Rock Stadium, launched in 2022." },
+  { name: "Autodromo Enzo e Dino Ferrari",    country: "Italy",       flag: "🇮🇹", note: "Imola — a classic, narrow track that punishes mistakes." },
+  { name: "Circuit de Monaco",               country: "Monaco",      flag: "🇲🇨", note: "The crown jewel of F1 — impossibly narrow streets through a principality." },
+  { name: "Circuit de Barcelona-Catalunya",   country: "Spain",       flag: "🇪🇸", note: "A technical circuit used heavily for pre-season testing." },
+  { name: "Circuit Gilles Villeneuve",        country: "Canada",      flag: "🇨🇦", note: "Montreal's island circuit, famous for its Wall of Champions." },
+  { name: "Red Bull Ring",                    country: "Austria",     flag: "🇦🇹", note: "Short and punchy — one of the shortest laps on the calendar." },
+  { name: "Silverstone",                      country: "UK",          flag: "🇬🇧", note: "Where F1 was born in 1950. High-speed corners, passionate crowds." },
+  { name: "Hungaroring",                      country: "Hungary",     flag: "🇭🇺", note: "Tight and twisty — often called 'Monaco without the walls'." },
+  { name: "Circuit de Spa-Francorchamps",     country: "Belgium",     flag: "🇧🇪", note: "Longest circuit on the calendar. Weather changes every few minutes." },
+  { name: "Circuit Zandvoort",                country: "Netherlands", flag: "🇳🇱", note: "Banked corners and a fanatical Dutch crowd for Verstappen." },
+  { name: "Autodromo Nazionale Monza",        country: "Italy",       flag: "🇮🇹", note: "The Temple of Speed — fastest average lap speeds in F1." },
+  { name: "Baku City Circuit",                country: "Azerbaijan",  flag: "🇦🇿", note: "Long straight, hairpin, and crumbling castle walls. Very chaotic." },
+  { name: "Marina Bay Street Circuit",        country: "Singapore",   flag: "🇸🇬", note: "Night race in oppressive heat. Most physically demanding of the year." },
+  { name: "Circuit of the Americas",          country: "USA",         flag: "🇺🇸", note: "Austin's purpose-built track — the first F1 venue designed from scratch in the USA." },
+  { name: "Autodromo Hermanos Rodriguez",     country: "Mexico",      flag: "🇲🇽", note: "High altitude means less engine power — and incredible atmosphere." },
+  { name: "Autodromo Jose Carlos Pace",       country: "Brazil",      flag: "🇧🇷", note: "Interlagos — short lap, huge elevation changes, legendary races." },
+  { name: "Las Vegas Strip Circuit",          country: "USA",         flag: "🇺🇸", note: "Night race on the Las Vegas Strip. Launched in 2023." },
+  { name: "Lusail International Circuit",     country: "Qatar",       flag: "🇶🇦", note: "Floodlit and fast — one of the smoothest circuits on the calendar." },
+  { name: "Yas Marina Circuit",               country: "UAE",         flag: "🇦🇪", note: "Season finale in Abu Dhabi — the last chance to settle championships." },
+];
+
+const HOW_RACE_WORKS: CardItem[] = [
+  {
+    label: "1. The Grid Forms",
+    description: "Cars line up in order of their qualifying result.",
+    detail: "Before the race, each car takes its place on the starting grid — a series of painted boxes on the track. The fastest qualifier (pole position) goes first, and so on back through all 20–22 cars. The grid is a physical countdown to the start.",
+  },
+  {
+    label: "2. The Start Lights",
+    description: "Five red lights come on one by one — when they go out, the race begins.",
+    detail: "The start sequence is a set of five red lights above the track. They illuminate one by one, then go out all at once — that's when drivers release the clutch and floor it. A false start (moving before the lights go out) results in a penalty. The start is the single most dangerous moment of the race.",
+  },
+  {
+    label: "3. Racing — 300 km of it",
+    description: "Drivers complete a set number of laps. First across the finish line wins.",
+    detail: "Every Grand Prix covers roughly 300 km (about 185 miles). At most tracks that's 50–70 laps. Drivers race wheel-to-wheel, managing tires, fuel, and the cars around them. The entire lap happens in as little as 60 seconds at the fastest circuits.",
+  },
+  {
+    label: "4. Pit Stops",
+    description: "Each driver must stop at least once to change tires.",
+    detail: "Pit stops are mandatory — every driver must use at least two different dry tire compounds in a race. A crew of 20 mechanics changes all four tires in as little as 2 seconds. When to pit, and which tires to go to, is one of the most important strategic decisions in the race.",
+  },
+  {
+    label: "5. Points & the Finish",
+    description: "The top 10 finishers score points toward the championship.",
+    detail: "When the leader crosses the finish line, all other drivers complete their current lap. Points go to positions 1–10 (25, 18, 15, 12, 10, 8, 6, 4, 2, 1). One bonus point goes to the driver who set the fastest lap — but only if they finish in the top 10. These points add up over the whole season to decide the champion.",
+  },
+];
+
+// ─── F1 Basics components ─────────────────────────────────────────────────────
+
+function StatPill({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-5 py-4 text-center">
+      <p className="text-2xl font-bold text-white tabular-nums">{value}</p>
+      <p className="text-xs text-zinc-500 mt-1 uppercase tracking-wider">{label}</p>
+    </div>
+  );
+}
+
+function TeamCard({ team }: { team: typeof TEAMS_2026[number] }) {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 flex items-center gap-3">
+      <span
+        className="w-1 h-10 rounded-full flex-shrink-0"
+        style={{ backgroundColor: team.color }}
+      />
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-white">{team.name}</p>
+        <p className="text-xs text-zinc-500 mt-0.5 truncate">
+          {team.drivers.join(" · ")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function CircuitRow({ circuit }: { circuit: typeof CIRCUITS_2026[number] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      onClick={() => setOpen(!open)}
+      className="w-full text-left rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-150 overflow-hidden"
+    >
+      <div className="px-4 py-3 flex items-center gap-3">
+        <span className="text-xl flex-shrink-0">{circuit.flag}</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white truncate">{circuit.name}</p>
+          <p className="text-xs text-zinc-500 mt-0.5">{circuit.country}</p>
+        </div>
+        <svg
+          className={`w-4 h-4 text-zinc-600 flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+      {open && (
+        <div className="px-4 pb-4 pt-1 border-t border-zinc-800/60">
+          <p className="text-sm text-zinc-400 leading-relaxed">{circuit.note}</p>
+        </div>
+      )}
+    </button>
+  );
+}
+
 // ─── Nav tabs ─────────────────────────────────────────────────────────────────
 
-const TABS = ["Flags", "Tires", "Terms", "Race Weekend", "Points & Championships"] as const;
+const TABS = ["F1 Basics", "Flags", "Tires", "Terms", "Race Weekend", "Points & Championships"] as const;
 type Tab = typeof TABS[number];
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function DebriefContent() {
-  const [activeTab, setActiveTab] = useState<Tab>("Flags");
+  const [activeTab, setActiveTab] = useState<Tab>("F1 Basics");
 
   return (
     <main className="min-h-screen bg-zinc-950">
@@ -440,6 +568,99 @@ export default function DebriefContent() {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {activeTab === "F1 Basics" && (
+          <div>
+            {/* What is F1 */}
+            <Section
+              title="What is Formula 1?"
+              subtitle="The fastest, most technically advanced racing series on Earth."
+            >
+              <p className="text-sm text-zinc-400 leading-relaxed mb-6">
+                Formula 1 is the top tier of single-seater car racing. Eleven teams each build two cars
+                and compete across a season of races held all over the world. Every race is called a{" "}
+                <span className="text-white font-semibold">Grand Prix</span> — French for{" "}
+                <em>"big prize"</em> — and has been since the sport's origins in the 1920s. Each weekend
+                follows the same format: practice, qualifying, then the race itself.
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                <StatPill value="11" label="Teams" />
+                <StatPill value="22" label="Drivers" />
+                <StatPill value="24" label="Races in 2026" />
+              </div>
+            </Section>
+
+            {/* What is a Grand Prix */}
+            <Section title='What is a Grand Prix?'>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 space-y-3">
+                <p className="text-sm text-zinc-400 leading-relaxed">
+                  A <span className="text-white font-semibold">Grand Prix</span> is simply one race event.
+                  Each one takes place at a different circuit (a purpose-built track or a stretch of public
+                  roads temporarily closed off) in a different country. The full name includes the host
+                  nation — so you&apos;ll hear <em>the British Grand Prix</em>, the{" "}
+                  <em>Japanese Grand Prix</em>, and so on.
+                </p>
+                <p className="text-sm text-zinc-400 leading-relaxed">
+                  The 2026 season visits <span className="text-white font-semibold">24 countries</span>{" "}
+                  across five continents — from Bahrain in March to Abu Dhabi in December. No two circuits
+                  are alike: some are brutally fast, some are impossibly tight street tracks, some run
+                  under floodlights at night.
+                </p>
+                <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                  {[
+                    { emoji: "🌍", label: "Europe" },
+                    { emoji: "🌎", label: "Americas" },
+                    { emoji: "🌏", label: "Asia" },
+                    { emoji: "🏙️", label: "Middle East" },
+                  ].map(({ emoji, label }) => (
+                    <div key={label} className="rounded-lg bg-zinc-800/50 py-2 px-3">
+                      <p className="text-lg">{emoji}</p>
+                      <p className="text-xs text-zinc-400 mt-0.5">{label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Section>
+
+            {/* How a race works */}
+            <Section
+              title="How a Race Works"
+              subtitle="The short version — tap any step to learn more."
+            >
+              <div className="flex flex-col gap-3">
+                {HOW_RACE_WORKS.map((item) => <InfoCard key={item.label} item={item} />)}
+              </div>
+            </Section>
+
+            {/* Teams & Drivers */}
+            <Section
+              title="The 2026 Grid"
+              subtitle="11 teams, 2 drivers each. Teams design and build their own cars — that's why they're called constructors."
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {TEAMS_2026.map((team) => <TeamCard key={team.name} team={team} />)}
+              </div>
+              <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/40 px-5 py-4">
+                <p className="text-xs text-zinc-500 uppercase tracking-widest mb-2">Good to know</p>
+                <p className="text-sm text-zinc-300 leading-relaxed">
+                  Each team&apos;s two drivers compete independently — they score points for themselves{" "}
+                  <em>and</em> for their team. Teammates can, and often do, end up racing each other on track.
+                  That tension within a team is one of the most interesting parts of F1.
+                </p>
+              </div>
+            </Section>
+
+            {/* Circuits */}
+            <Section
+              title="The 2026 Circuits"
+              subtitle="24 venues, 24 different challenges. Tap any circuit for a quick note."
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {CIRCUITS_2026.map((c) => <CircuitRow key={c.name} circuit={c} />)}
+              </div>
+            </Section>
+          </div>
+        )}
+
         {activeTab === "Flags" && (
           <Section
             title="Race Flags"
