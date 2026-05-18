@@ -410,38 +410,38 @@ const TEAMS_2026 = [
   { name: "Racing Bulls",   color: "#6C98FF", drivers: ["Liam Lawson", "Arvid Lindblad"] },
 ];
 
-const CIRCUITS_2026: { name: string; country: string; flag: string; note: string }[] = [
-  { name: "Bahrain International Circuit",    country: "Bahrain",     flag: "🇧🇭", note: "Traditional season opener — a night race under floodlights." },
-  { name: "Jeddah Corniche Circuit",          country: "Saudi Arabia",flag: "🇸🇦", note: "One of the fastest street circuits on the calendar." },
-  { name: "Albert Park",                      country: "Australia",   flag: "🇦🇺", note: "Melbourne's semi-permanent street circuit through parkland." },
-  { name: "Suzuka",                           country: "Japan",       flag: "🇯🇵", note: "An iconic figure-of-eight layout loved by drivers worldwide." },
-  { name: "Shanghai International Circuit",   country: "China",       flag: "🇨🇳", note: "Home of the Chinese GP — returned to the calendar in 2024." },
-  { name: "Miami International Autodrome",    country: "USA",         flag: "🇺🇸", note: "Street circuit around Hard Rock Stadium, launched in 2022." },
-  { name: "Autodromo Enzo e Dino Ferrari",    country: "Italy",       flag: "🇮🇹", note: "Imola — a classic, narrow track that punishes mistakes." },
-  { name: "Circuit de Monaco",               country: "Monaco",      flag: "🇲🇨", note: "The crown jewel of F1 — impossibly narrow streets through a principality." },
-  { name: "Circuit de Barcelona-Catalunya",   country: "Spain",       flag: "🇪🇸", note: "A technical circuit used heavily for pre-season testing." },
-  { name: "Circuit Gilles Villeneuve",        country: "Canada",      flag: "🇨🇦", note: "Montreal's island circuit, famous for its Wall of Champions." },
-  { name: "Red Bull Ring",                    country: "Austria",     flag: "🇦🇹", note: "Short and punchy — one of the shortest laps on the calendar." },
-  { name: "Silverstone",                      country: "UK",          flag: "🇬🇧", note: "Where F1 was born in 1950. High-speed corners, passionate crowds." },
-  { name: "Hungaroring",                      country: "Hungary",     flag: "🇭🇺", note: "Tight and twisty — often called 'Monaco without the walls'." },
-  { name: "Circuit de Spa-Francorchamps",     country: "Belgium",     flag: "🇧🇪", note: "Longest circuit on the calendar. Weather changes every few minutes." },
-  { name: "Circuit Zandvoort",                country: "Netherlands", flag: "🇳🇱", note: "Banked corners and a fanatical Dutch crowd for Verstappen." },
-  { name: "Autodromo Nazionale Monza",        country: "Italy",       flag: "🇮🇹", note: "The Temple of Speed — fastest average lap speeds in F1." },
-  { name: "Baku City Circuit",                country: "Azerbaijan",  flag: "🇦🇿", note: "Long straight, hairpin, and crumbling castle walls. Very chaotic." },
-  { name: "Marina Bay Street Circuit",        country: "Singapore",   flag: "🇸🇬", note: "Night race in oppressive heat. Most physically demanding of the year." },
-  { name: "Circuit of the Americas",          country: "USA",         flag: "🇺🇸", note: "Austin's purpose-built track — the first F1 venue designed from scratch in the USA." },
-  { name: "Autodromo Hermanos Rodriguez",     country: "Mexico",      flag: "🇲🇽", note: "High altitude means less engine power — and incredible atmosphere." },
-  { name: "Autodromo Jose Carlos Pace",       country: "Brazil",      flag: "🇧🇷", note: "Interlagos — short lap, huge elevation changes, legendary races." },
-  { name: "Las Vegas Strip Circuit",          country: "USA",         flag: "🇺🇸", note: "Night race on the Las Vegas Strip. Launched in 2023." },
-  { name: "Lusail International Circuit",     country: "Qatar",       flag: "🇶🇦", note: "Floodlit and fast — one of the smoothest circuits on the calendar." },
-  { name: "Yas Marina Circuit",               country: "UAE",         flag: "🇦🇪", note: "Season finale in Abu Dhabi — the last chance to settle championships." },
+const CIRCUITS_2026: { name: string; country: string; code: string; note: string }[] = [
+  { name: "Bahrain International Circuit",     country: "Bahrain",      code: "BHR", note: "Traditional season opener — a night race under floodlights." },
+  { name: "Jeddah Corniche Circuit",          country: "Saudi Arabia", code: "SAU", note: "One of the fastest street circuits on the calendar." },
+  { name: "Albert Park",                      country: "Australia",    code: "AUS", note: "Melbourne's semi-permanent street circuit through parkland." },
+  { name: "Suzuka",                           country: "Japan",        code: "JPN", note: "An iconic figure-of-eight layout loved by drivers worldwide." },
+  { name: "Shanghai International Circuit",    country: "China",        code: "CHN", note: "Home of the Chinese GP — returned to the calendar in 2024." },
+  { name: "Miami International Autodrome",     country: "USA",          code: "USA", note: "Street circuit around Hard Rock Stadium, launched in 2022." },
+  { name: "Autodromo Enzo e Dino Ferrari",    country: "Italy",        code: "ITA", note: "Imola — a classic, narrow track that punishes mistakes." },
+  { name: "Circuit de Monaco",                country: "Monaco",       code: "MON", note: "The crown jewel of F1 — impossibly narrow streets through a principality." },
+  { name: "Circuit de Barcelona-Catalunya",   country: "Spain",        code: "ESP", note: "A technical circuit used heavily for pre-season testing." },
+  { name: "Circuit Gilles Villeneuve",        country: "Canada",       code: "CAN", note: "Montreal's island circuit, famous for its Wall of Champions." },
+  { name: "Red Bull Ring",                    country: "Austria",      code: "AUT", note: "Short and punchy — one of the shortest laps on the calendar." },
+  { name: "Silverstone",                      country: "UK",           code: "GBR", note: "Where F1 was born in 1950. High-speed corners, passionate crowds." },
+  { name: "Hungaroring",                      country: "Hungary",      code: "HUN", note: "Tight and twisty — often called 'Monaco without the walls'." },
+  { name: "Circuit de Spa-Francorchamps",     country: "Belgium",      code: "BEL", note: "Longest circuit on the calendar. Weather changes every few minutes." },
+  { name: "Circuit Zandvoort",                country: "Netherlands",  code: "NED", note: "Banked corners and a fanatical Dutch crowd for Verstappen." },
+  { name: "Autodromo Nazionale Monza",        country: "Italy",        code: "ITA", note: "The Temple of Speed — fastest average lap speeds in F1." },
+  { name: "Baku City Circuit",                country: "Azerbaijan",   code: "AZE", note: "Long straight, hairpin, and crumbling castle walls. Very chaotic." },
+  { name: "Marina Bay Street Circuit",        country: "Singapore",    code: "SGP", note: "Night race in oppressive heat. Most physically demanding of the year." },
+  { name: "Circuit of the Americas",          country: "USA",          code: "USA", note: "Austin's purpose-built track — the first F1 venue designed from scratch in the USA." },
+  { name: "Autodromo Hermanos Rodriguez",     country: "Mexico",       code: "MEX", note: "High altitude means less engine power — and incredible atmosphere." },
+  { name: "Autodromo Jose Carlos Pace",       country: "Brazil",       code: "BRA", note: "Interlagos — short lap, huge elevation changes, legendary races." },
+  { name: "Las Vegas Strip Circuit",          country: "USA",          code: "USA", note: "Night race on the Las Vegas Strip. Launched in 2023." },
+  { name: "Lusail International Circuit",      country: "Qatar",        code: "QAT", note: "Floodlit and fast — one of the smoothest circuits on the calendar." },
+  { name: "Yas Marina Circuit",               country: "UAE",          code: "UAE", note: "Season finale in Abu Dhabi — the last chance to settle championships." },
 ];
 
 const HOW_RACE_WORKS: CardItem[] = [
   {
     label: "1. The Grid Forms",
     description: "Cars line up in order of their qualifying result.",
-    detail: "Before the race, each car takes its place on the starting grid — a series of painted boxes on the track. The fastest qualifier (pole position) goes first, and so on back through all 20–22 cars. The grid is a physical countdown to the start.",
+    detail: "Before the race, each car takes its place on the starting grid — a series of painted boxes on the track. The fastest qualifier (pole position) goes first, and so on back through all 22 cars.",
   },
   {
     label: "2. The Start Lights",
@@ -451,12 +451,12 @@ const HOW_RACE_WORKS: CardItem[] = [
   {
     label: "3. Racing — 300 km of it",
     description: "Drivers complete a set number of laps. First across the finish line wins.",
-    detail: "Every Grand Prix covers roughly 300 km (about 185 miles). At most tracks that's 50–70 laps. Drivers race wheel-to-wheel, managing tires, fuel, and the cars around them. The entire lap happens in as little as 60 seconds at the fastest circuits.",
+    detail: "Every Grand Prix covers roughly 300 km (about 185 miles). At most tracks that's 50–70 laps. Drivers race wheel-to-wheel, managing tires, fuel, and the cars around them. A single lap can take as little as 60 seconds at the fastest circuits.",
   },
   {
     label: "4. Pit Stops",
     description: "Each driver must stop at least once to change tires.",
-    detail: "Pit stops are mandatory — every driver must use at least two different dry tire compounds in a race. A crew of 20 mechanics changes all four tires in as little as 2 seconds. When to pit, and which tires to go to, is one of the most important strategic decisions in the race.",
+    detail: "Pit stops are mandatory — every driver must use at least two different dry tire compounds in a race. A crew of around 20 mechanics changes all four tires in as little as 2 seconds. When to pit, and which tires to switch to, is one of the most important strategic decisions in the race.",
   },
   {
     label: "5. Points & the Finish",
@@ -501,7 +501,9 @@ function CircuitRow({ circuit }: { circuit: typeof CIRCUITS_2026[number] }) {
       className="w-full text-left rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-150 overflow-hidden"
     >
       <div className="px-4 py-3 flex items-center gap-3">
-        <span className="text-xl flex-shrink-0">{circuit.flag}</span>
+        <span className="flex-shrink-0 w-10 h-7 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold tracking-wider text-zinc-400">
+          {circuit.code}
+        </span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">{circuit.name}</p>
           <p className="text-xs text-zinc-500 mt-0.5">{circuit.country}</p>
@@ -594,27 +596,22 @@ export default function DebriefContent() {
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 space-y-3">
                 <p className="text-sm text-zinc-400 leading-relaxed">
                   A <span className="text-white font-semibold">Grand Prix</span> is simply one race event.
-                  Each one takes place at a different circuit (a purpose-built track or a stretch of public
-                  roads temporarily closed off) in a different country. The full name includes the host
-                  nation — so you&apos;ll hear <em>the British Grand Prix</em>, the{" "}
+                  Each one takes place at a different circuit — a purpose-built track or a stretch of public
+                  roads temporarily closed off — in countries all over the world. The full name includes the
+                  host nation, so you&apos;ll hear <em>the British Grand Prix</em>, the{" "}
                   <em>Japanese Grand Prix</em>, and so on.
                 </p>
                 <p className="text-sm text-zinc-400 leading-relaxed">
-                  The 2026 season visits <span className="text-white font-semibold">24 countries</span>{" "}
-                  across five continents — from Bahrain in March to Abu Dhabi in December. No two circuits
-                  are alike: some are brutally fast, some are impossibly tight street tracks, some run
-                  under floodlights at night.
+                  The 2026 season stages <span className="text-white font-semibold">24 Grands Prix</span>{" "}
+                  across <span className="text-white font-semibold">21 countries</span> and five continents —
+                  from Bahrain in March to Abu Dhabi in December. (A few countries host more than one race:
+                  the USA has three, Italy has two.) No two circuits are alike: some are brutally fast, some
+                  are impossibly tight street tracks, some run under floodlights at night.
                 </p>
-                <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                  {[
-                    { emoji: "🌍", label: "Europe" },
-                    { emoji: "🌎", label: "Americas" },
-                    { emoji: "🌏", label: "Asia" },
-                    { emoji: "🏙️", label: "Middle East" },
-                  ].map(({ emoji, label }) => (
-                    <div key={label} className="rounded-lg bg-zinc-800/50 py-2 px-3">
-                      <p className="text-lg">{emoji}</p>
-                      <p className="text-xs text-zinc-400 mt-0.5">{label}</p>
+                <div className="pt-2 grid grid-cols-3 sm:grid-cols-5 gap-2 text-center">
+                  {["Europe", "Asia", "North America", "South America", "Oceania"].map((label) => (
+                    <div key={label} className="rounded-lg bg-zinc-800/50 py-2.5 px-2 flex items-center justify-center">
+                      <p className="text-xs font-medium text-zinc-300">{label}</p>
                     </div>
                   ))}
                 </div>
