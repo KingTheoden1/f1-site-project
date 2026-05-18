@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "flag-icons/css/flag-icons.min.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -410,31 +411,32 @@ const TEAMS_2026 = [
   { name: "Racing Bulls",   color: "#6C98FF", drivers: ["Liam Lawson", "Arvid Lindblad"] },
 ];
 
+// `code` is the ISO 3166-1 alpha-2 code used by flag-icons (https://flagicons.lipis.dev)
 const CIRCUITS_2026: { name: string; country: string; code: string; note: string }[] = [
-  { name: "Bahrain International Circuit",     country: "Bahrain",      code: "BHR", note: "Traditional season opener — a night race under floodlights." },
-  { name: "Jeddah Corniche Circuit",          country: "Saudi Arabia", code: "SAU", note: "One of the fastest street circuits on the calendar." },
-  { name: "Albert Park",                      country: "Australia",    code: "AUS", note: "Melbourne's semi-permanent street circuit through parkland." },
-  { name: "Suzuka",                           country: "Japan",        code: "JPN", note: "An iconic figure-of-eight layout loved by drivers worldwide." },
-  { name: "Shanghai International Circuit",    country: "China",        code: "CHN", note: "Home of the Chinese GP — returned to the calendar in 2024." },
-  { name: "Miami International Autodrome",     country: "USA",          code: "USA", note: "Street circuit around Hard Rock Stadium, launched in 2022." },
-  { name: "Autodromo Enzo e Dino Ferrari",    country: "Italy",        code: "ITA", note: "Imola — a classic, narrow track that punishes mistakes." },
-  { name: "Circuit de Monaco",                country: "Monaco",       code: "MON", note: "The crown jewel of F1 — impossibly narrow streets through a principality." },
-  { name: "Circuit de Barcelona-Catalunya",   country: "Spain",        code: "ESP", note: "A technical circuit used heavily for pre-season testing." },
-  { name: "Circuit Gilles Villeneuve",        country: "Canada",       code: "CAN", note: "Montreal's island circuit, famous for its Wall of Champions." },
-  { name: "Red Bull Ring",                    country: "Austria",      code: "AUT", note: "Short and punchy — one of the shortest laps on the calendar." },
-  { name: "Silverstone",                      country: "UK",           code: "GBR", note: "Where F1 was born in 1950. High-speed corners, passionate crowds." },
-  { name: "Hungaroring",                      country: "Hungary",      code: "HUN", note: "Tight and twisty — often called 'Monaco without the walls'." },
-  { name: "Circuit de Spa-Francorchamps",     country: "Belgium",      code: "BEL", note: "Longest circuit on the calendar. Weather changes every few minutes." },
-  { name: "Circuit Zandvoort",                country: "Netherlands",  code: "NED", note: "Banked corners and a fanatical Dutch crowd for Verstappen." },
-  { name: "Autodromo Nazionale Monza",        country: "Italy",        code: "ITA", note: "The Temple of Speed — fastest average lap speeds in F1." },
-  { name: "Baku City Circuit",                country: "Azerbaijan",   code: "AZE", note: "Long straight, hairpin, and crumbling castle walls. Very chaotic." },
-  { name: "Marina Bay Street Circuit",        country: "Singapore",    code: "SGP", note: "Night race in oppressive heat. Most physically demanding of the year." },
-  { name: "Circuit of the Americas",          country: "USA",          code: "USA", note: "Austin's purpose-built track — the first F1 venue designed from scratch in the USA." },
-  { name: "Autodromo Hermanos Rodriguez",     country: "Mexico",       code: "MEX", note: "High altitude means less engine power — and incredible atmosphere." },
-  { name: "Autodromo Jose Carlos Pace",       country: "Brazil",       code: "BRA", note: "Interlagos — short lap, huge elevation changes, legendary races." },
-  { name: "Las Vegas Strip Circuit",          country: "USA",          code: "USA", note: "Night race on the Las Vegas Strip. Launched in 2023." },
-  { name: "Lusail International Circuit",      country: "Qatar",        code: "QAT", note: "Floodlit and fast — one of the smoothest circuits on the calendar." },
-  { name: "Yas Marina Circuit",               country: "UAE",          code: "UAE", note: "Season finale in Abu Dhabi — the last chance to settle championships." },
+  { name: "Bahrain International Circuit",     country: "Bahrain",      code: "bh", note: "Traditional season opener — a night race under floodlights." },
+  { name: "Jeddah Corniche Circuit",          country: "Saudi Arabia", code: "sa", note: "One of the fastest street circuits on the calendar." },
+  { name: "Albert Park",                      country: "Australia",    code: "au", note: "Melbourne's semi-permanent street circuit through parkland." },
+  { name: "Suzuka",                           country: "Japan",        code: "jp", note: "An iconic figure-of-eight layout loved by drivers worldwide." },
+  { name: "Shanghai International Circuit",    country: "China",        code: "cn", note: "Home of the Chinese GP — returned to the calendar in 2024." },
+  { name: "Miami International Autodrome",     country: "USA",          code: "us", note: "Street circuit around Hard Rock Stadium, launched in 2022." },
+  { name: "Autodromo Enzo e Dino Ferrari",    country: "Italy",        code: "it", note: "Imola — a classic, narrow track that punishes mistakes." },
+  { name: "Circuit de Monaco",                country: "Monaco",       code: "mc", note: "The crown jewel of F1 — impossibly narrow streets through a principality." },
+  { name: "Circuit de Barcelona-Catalunya",   country: "Spain",        code: "es", note: "A technical circuit used heavily for pre-season testing." },
+  { name: "Circuit Gilles Villeneuve",        country: "Canada",       code: "ca", note: "Montreal's island circuit, famous for its Wall of Champions." },
+  { name: "Red Bull Ring",                    country: "Austria",      code: "at", note: "Short and punchy — one of the shortest laps on the calendar." },
+  { name: "Silverstone",                      country: "UK",           code: "gb", note: "Where F1 was born in 1950. High-speed corners, passionate crowds." },
+  { name: "Hungaroring",                      country: "Hungary",      code: "hu", note: "Tight and twisty — often called 'Monaco without the walls'." },
+  { name: "Circuit de Spa-Francorchamps",     country: "Belgium",      code: "be", note: "Longest circuit on the calendar. Weather changes every few minutes." },
+  { name: "Circuit Zandvoort",                country: "Netherlands",  code: "nl", note: "Banked corners and a fanatical Dutch crowd for Verstappen." },
+  { name: "Autodromo Nazionale Monza",        country: "Italy",        code: "it", note: "The Temple of Speed — fastest average lap speeds in F1." },
+  { name: "Baku City Circuit",                country: "Azerbaijan",   code: "az", note: "Long straight, hairpin, and crumbling castle walls. Very chaotic." },
+  { name: "Marina Bay Street Circuit",        country: "Singapore",    code: "sg", note: "Night race in oppressive heat. Most physically demanding of the year." },
+  { name: "Circuit of the Americas",          country: "USA",          code: "us", note: "Austin's purpose-built track — the first F1 venue designed from scratch in the USA." },
+  { name: "Autodromo Hermanos Rodriguez",     country: "Mexico",       code: "mx", note: "High altitude means less engine power — and incredible atmosphere." },
+  { name: "Autodromo Jose Carlos Pace",       country: "Brazil",       code: "br", note: "Interlagos — short lap, huge elevation changes, legendary races." },
+  { name: "Las Vegas Strip Circuit",          country: "USA",          code: "us", note: "Night race on the Las Vegas Strip. Launched in 2023." },
+  { name: "Lusail International Circuit",      country: "Qatar",        code: "qa", note: "Floodlit and fast — one of the smoothest circuits on the calendar." },
+  { name: "Yas Marina Circuit",               country: "UAE",          code: "ae", note: "Season finale in Abu Dhabi — the last chance to settle championships." },
 ];
 
 const HOW_RACE_WORKS: CardItem[] = [
@@ -501,9 +503,11 @@ function CircuitRow({ circuit }: { circuit: typeof CIRCUITS_2026[number] }) {
       className="w-full text-left rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-150 overflow-hidden"
     >
       <div className="px-4 py-3 flex items-center gap-3">
-        <span className="flex-shrink-0 w-10 h-7 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold tracking-wider text-zinc-400">
-          {circuit.code}
-        </span>
+        <span
+          className={`fi fi-${circuit.code} flex-shrink-0 rounded-sm border border-zinc-700`}
+          style={{ width: 28, height: 21, backgroundSize: "cover" }}
+          aria-hidden
+        />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">{circuit.name}</p>
           <p className="text-xs text-zinc-500 mt-0.5">{circuit.country}</p>
@@ -595,10 +599,12 @@ export default function DebriefContent() {
             <Section title='What is a Grand Prix?'>
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 space-y-3">
                 <p className="text-sm text-zinc-400 leading-relaxed">
-                  A <span className="text-white font-semibold">Grand Prix</span> is simply one race event.
-                  Each one takes place at a different circuit — a purpose-built track or a stretch of public
-                  roads temporarily closed off — in countries all over the world. The full name includes the
-                  host nation, so you&apos;ll hear <em>the British Grand Prix</em>, the{" "}
+                  A{" "}
+                  <span className="text-white font-semibold">Grand Prix</span>{" "}
+                  is simply one race event. Each one takes place at a different circuit — a
+                  purpose-built track or a stretch of public roads temporarily closed off — in
+                  countries all over the world. The full name includes the host nation, so
+                  you&apos;ll hear <em>the British Grand Prix</em>, the{" "}
                   <em>Japanese Grand Prix</em>, and so on.
                 </p>
                 <p className="text-sm text-zinc-400 leading-relaxed">
